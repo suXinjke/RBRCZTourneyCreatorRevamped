@@ -165,7 +165,7 @@
                     <td>{{ store.tournament.to_date }} {{ store.tournament.to_time }}</td>
                 </tr>
             </tbody>
-            <tbody v-else>
+            <tbody v-else style="text-align: center;">
                 <td colspan="4">No legs created</td>
             </tbody>
             <tfoot><tr><td colspan="4" style="text-align: center;">
