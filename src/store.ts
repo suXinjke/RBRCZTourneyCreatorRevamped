@@ -52,6 +52,8 @@ const store = {
 
 
     trackAdd( track_ids: string[] ) {
+        const lastTrack = this.tracks[this.tracks.length - 1]
+
         track_ids.forEach( track_id => {
             const track = tracks_data[track_id] as TrackData
             store.tracks.push( {
@@ -60,30 +62,30 @@ const store = {
                 surface_type: 'Dry',
                 surface_age: 'New',
 
-                weather: 'Good weather',
+                weather: lastTrack ? lastTrack.weather : 'Good weather',
                 weather2: 'Crisp',
                 weather_change_allowed: false,
                 time_of_day: 'Early evening',
                 clouds: 'Clear',
 
                 service_time_mins: 0,
-                setup_change_allowed: true,
+                setup_change_allowed: lastTrack ? lastTrack.setup_change_allowed : true,
                 tyre_replacement_allowed: false,
-                tyre_change_allowed: true,
+                tyre_change_allowed: lastTrack ? lastTrack.tyre_change_allowed : true,
                 tyres:
                     track.surface === 'Snow' ? 'Snow' :
                     track.surface === 'Tarmac' ? 'Dry tarmac' :
                     'Dry gravel',
 
                 damage_change_allowed: false,
-                damage: 'Realistic',
+                damage: lastTrack ? lastTrack.damage : 'Realistic',
 
                 shortcut_check: 'None',
 
-                superally: false,
+                superally: lastTrack ? lastTrack.superally : false,
                 superally_hold: false,
 
-                retry_allowed: false
+                retry_allowed: lastTrack ? lastTrack.retry_allowed : false
             } )
         } )
     },
