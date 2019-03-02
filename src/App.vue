@@ -83,11 +83,21 @@ export default Vue.extend( {
 
     computed: {
         from_date: function() {
-            return new Date( this.store.tournament.from_date + ' ' + this.store.tournament.from_time )
+            const { from_date, from_time } = this.store.tournament
+            return (
+                !from_date && !from_time ? new Date() :
+
+                // HACK: Time is set as late as possible to please
+                // the validation instead of omitting time from 'now'
+                !from_time ? new Date( `${from_date}T23:59:00+0100` ) :
+
+                new Date( `${from_date}T${from_time}+0100` )
+            )
         },
 
         to_date: function() {
-            return new Date( this.store.tournament.to_date + ' ' + this.store.tournament.to_time )
+            const { to_date, to_time } = this.store.tournament
+            return new Date( `${to_date}T${to_time}+0100` )
         },
 
         cars_errors: function() {
@@ -106,20 +116,22 @@ export default Vue.extend( {
 
         tournament_errors: function() {
             const now = new Date()
+            const oneDayAfter = new Date( Number( this.from_date ) + 1000 * 60 * 60 * 24 )
             const sevenDaysAfter = new Date( Number( this.from_date ) + 1000 * 60 * 60 * 24 * 7 )
 
             return {
                 name: this.store.tournament.name.trim().length === 0 ? 'Enter the tournament name' : '',
 
                 from_datetime: (
-                    this.from_date <= now ? 'This date cannot be set earlier than now' :
+                    this.from_date < now ? 'This date cannot be set earlier than now' :
                     this.from_date >= this.to_date ? `This date cannot be set later than 'Valid to' date` :
                     ''
                 ),
 
                 to_datetime: (
+                    this.to_date < oneDayAfter ? `This date must be set atleast 24 hours after the tournament beginning` :
+                    this.to_date > sevenDaysAfter ? 'This date cannot be set to end after more than 7 days' :
                     this.to_date <= this.from_date ? `This date cannot be set earlier than 'Valid from' date` :
-                    this.to_date >= sevenDaysAfter ? 'This date cannot be set to end after more than 7 days' :
                     ''
                 )
             }
@@ -130,7 +142,7 @@ export default Vue.extend( {
                 const { tournament } = this.store
                 let error = ''
 
-                const date = new Date( leg.date + ' ' + leg.time )
+                const date = new Date( `${leg.date}T${leg.time}+0100` )
 
                 if ( !leg.date ) {
                     error = 'Correct date must be set'
@@ -140,18 +152,16 @@ export default Vue.extend( {
                     error = 'Correct time must be set'
                 }
 
-                const tournament_from_date = new Date( tournament.from_date + ' ' + tournament.from_time )
-                const tournament_to_date = new Date( tournament.to_date + ' ' + tournament.to_time )
                 const previous_leg = legs[index - 1]
 
-                if ( date <= tournament_from_date ) {
-                    error = `This date must be set after the tournament start date: ${tournament_from_date.toLocaleString()}`
-                } else if ( date >= tournament_to_date ) {
-                    error = `This date must be set before the tournament end date: ${tournament_to_date.toLocaleString()}`
+                if ( date <= this.from_date ) {
+                    error = `This date must be set after the tournament start date: ${this.from_date.toLocaleString()}`
+                } else if ( date >= this.to_date ) {
+                    error = `This date must be set before the tournament end date: ${this.to_date.toLocaleString()}`
                 }
 
                 if ( previous_leg ) {
-                    const previous_leg_date = new Date( previous_leg.date + ' ' + previous_leg.time )
+                    const previous_leg_date = new Date( `${previous_leg.date}T${previous_leg.time}+0100` )
                     if ( date <= previous_leg_date ) {
                         error = 'This date must be set after the previous leg split date'
                     }

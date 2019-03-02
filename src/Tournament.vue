@@ -24,7 +24,7 @@
         </tr>
 
         <tr>
-            <td>Valid from</td>
+            <td>Valid from (<a href="https://greenwichmeantime.com/time-zone/europe/european-union/czech-republic/">CET</a>) (blank = now)</td>
             <td>
                 <input type="date" id="tournament.from_date" v-model="tournament.from_date">
                 <input type="time" id="tournament.from_time" v-model="tournament.from_time">
@@ -33,7 +33,7 @@
         </tr>
 
         <tr>
-            <td>Valid to</td>
+            <td>Valid to (<a href="https://greenwichmeantime.com/time-zone/europe/european-union/czech-republic/">CET</a>)</td>
             <td>
                 <input type="date" id="tournament.from_to" v-model="tournament.to_date">
                 <input type="time" id="tournament.from_to" v-model="tournament.to_time" >
