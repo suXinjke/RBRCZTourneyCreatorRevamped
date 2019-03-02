@@ -191,6 +191,22 @@ export default Vue.extend( {
         hasErrors: function( errors: any ) {
             return Object.values( errors ).find( value => Boolean( value ) === true )
         }
+    },
+
+    watch: {
+        'store.tracks': function( tracks: TrackData[] ) {
+            if ( tracks.length < 2 ) {
+                store.legs.splice( 0, store.legs.length )
+                return
+            }
+
+            for ( let i = store.legs.length - 1 ; i >= 0 ; i-- ) {
+                const leg = store.legs[i]
+                if ( leg.after_stage_divider >= tracks.length - 1 ) {
+                    store.legs.splice( i, 1 )
+                }
+            }
+        }
     }
 } )
 </script>
