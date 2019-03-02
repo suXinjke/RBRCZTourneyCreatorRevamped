@@ -204,8 +204,8 @@ export default Vue.extend( {
 
         canAddLeg: function() {
             return (
-                this.tracks.length >= 2 ||
-                this.maxStageDivider < this.tracks.length - 2
+                this.tracks.length >= 2 &&
+                ( this.legs.length === 0 || this.maxStageDivider < this.tracks.length - 2 )
             )
         },
 
