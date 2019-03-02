@@ -146,7 +146,7 @@
                         <td>{{ leg_index + 1 }}</td>
 
                         <td v-if="leg_index === 0">1 - {{ leg.after_stage_divider + 1 }}</td>
-                        <td v-else-if="leg_index === legs.length - 1">{{ legs[leg_index-1].after_stage_divider + 2 }} - {{ store.tracks.length - 1 }}</td>
+                        <td v-else-if="leg_index === legs.length - 1">{{ legs[leg_index-1].after_stage_divider + 2 }} - {{ leg.after_stage_divider + 1 }}</td>
                         <td v-else>{{ legs[leg_index-1].after_stage_divider + 2 }} - {{ leg.after_stage_divider + 1 }}</td>
 
                         <td v-if="leg_index === 0">{{ store.tournament.from_date }} {{ store.tournament.from_time }}</td>
