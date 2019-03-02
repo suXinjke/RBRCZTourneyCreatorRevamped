@@ -10,8 +10,11 @@
                     <td>Damage</td>
                     <td>Surface type</td>
                     <td>Surface age</td>
-                    <td>Tyre change allowed</td>
-                    <td>Setup change allowed</td>
+                    <td>Service</td>
+                    <td>Tyre change</td>
+                    <td>Setup change</td>
+                    <td>Superally</td>
+                    <td>Superally hold</td>
                     <td></td>
                 </tr>
             </thead>
@@ -62,8 +65,22 @@
                                 <option>Worn</option>
                             </select>
                         </td>
+                        <td style="text-align: center" >
+                             <select v-model="track.service_time_mins">
+                                <option v-bind:value="Number( 0 )">No</option>
+                                <option v-bind:value="Number( 5 )">5 min.</option>
+                                <option v-bind:value="Number( 10 )">10 min.</option>
+                                <option v-bind:value="Number( 15 )">15 min.</option>
+                                <option v-bind:value="Number( 20 )">20 min.</option>
+                                <option v-bind:value="Number( 30 )">30 min.</option>
+                                <option v-bind:value="Number( 60 )">60 min.</option>
+                                <option v-bind:value="Number( 90 )">90 min.</option>
+                            </select>
+                        </td>
                         <td style="text-align: center" ><input type="checkbox" v-model="track.tyre_change_allowed"></td>
                         <td style="text-align: center" ><input type="checkbox" v-model="track.setup_change_allowed"></td>
+                        <td style="text-align: center" ><input type="checkbox" v-model="track.superally"></td>
+                        <td style="text-align: center" ><input type="checkbox" v-model="track.superally_hold"></td>
                         <td>
                             <button
                                 :disabled="store.arrayCanMoveElement( tracks, index, -1 ) === false"
@@ -81,7 +98,7 @@
                         </td>
                     </tr>
                     <tr v-if="track.service_time_mins > 0" :key="index + 'service'">
-                        <td colspan="13" class="table-highlight">Service area ({{ track.service_time_mins }} min.)</td>
+                        <td colspan="13" class="table-highlight">Service area ({{ track.service_time_mins }} min.) / <input type="checkbox" v-model="track.tyre_replacement_allowed"> Tyre replacement</td>
                     </tr>
                     <tr v-if="track.superally_hold" :key="index + 'superally'">
                         <td colspan="13" class="table-highlight">Superally</td>
