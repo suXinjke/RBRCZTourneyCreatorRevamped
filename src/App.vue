@@ -138,7 +138,7 @@ export default Vue.extend( {
         },
 
         legs_errors: function() {
-            return this.store.legs.reduce( ( prev, leg, index, legs ) => {
+            return this.store.legs.sort( ( a, b ) => a.after_stage_divider > b.after_stage_divider ? 1 : -1 ).reduce( ( prev, leg, index, legs ) => {
                 const { tournament } = this.store
                 let error = ''
 

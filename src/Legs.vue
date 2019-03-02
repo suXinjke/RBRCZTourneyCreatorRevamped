@@ -1,6 +1,5 @@
 <template>
     <div>
-        <button v-on:click="addLeg" :disabled="canAddLeg === false">Add leg</button>
         <table>
             <thead>
                 <tr>
@@ -116,6 +115,46 @@
                 </template>
             </tbody>
         </table>
+
+        <table style="margin: 0 auto;">
+            <thead><tr>
+                <td>Leg</td>
+                <td>Stage</td>
+                <td>Date from</td>
+                <td>Date to</td>
+            </tr></thead>
+            <tbody v-if="legs.length > 0 ">
+                <template v-for="( leg, leg_index ) in legs">
+                    <tr :key="leg_index + ' ' + leg + 'leg'">
+                        <td>{{ leg_index + 1 }}</td>
+
+                        <td v-if="leg_index === 0">1 - {{ leg.after_stage_divider + 1 }}</td>
+                        <td v-else-if="leg_index === legs.length - 1">{{ legs[leg_index-1].after_stage_divider + 2 }} - {{ store.tracks.length - 1 }}</td>
+                        <td v-else>{{ legs[leg_index-1].after_stage_divider + 2 }} - {{ leg.after_stage_divider + 1 }}</td>
+
+                        <td v-if="leg_index === 0">{{ store.tournament.from_date }} {{ store.tournament.from_time }}</td>
+                        <td v-else>{{ legs[leg_index-1].date }} {{ legs[leg_index-1].time }}</td>
+
+                        <td>{{ leg.date }} {{ leg.time }}</td>
+                    </tr>
+                </template>
+                <tr>
+                    <td>{{ legs.length + 1 }}</td>
+
+                    <td>{{ lastLeg.after_stage_divider + 2 }} - {{ store.tracks.length }}</td>
+
+                    <td>{{ lastLeg.date }} {{ lastLeg.time }}</td>
+
+                    <td>{{ store.tournament.to_date }} {{ store.tournament.to_time }}</td>
+                </tr>
+            </tbody>
+            <tbody v-else>
+                <td colspan="4">No legs created</td>
+            </tbody>
+            <tfoot><tr><td colspan="4" style="text-align: center;">
+                <button v-on:click="addLeg" :disabled="canAddLeg === false">Add leg</button>
+            </td></tr></tfoot>
+        </table>
     </div>
 </template>
 
@@ -153,6 +192,9 @@ export default Vue.extend( {
             )
         },
 
+        lastLeg: function() {
+            return this.legs[this.legs.length - 1]
+        }
     },
     methods: {
         addLeg: function() {
