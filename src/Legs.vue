@@ -142,10 +142,6 @@ export default Vue.extend( {
         }
     },
     computed: {
-        sliderMax: function() {
-            return this.tracks.length
-        },
-
         maxStageDivider: function() {
             return this.legs.reduce( ( max, leg ) => leg.after_stage_divider > max ? leg.after_stage_divider : max, 0 )
         },
