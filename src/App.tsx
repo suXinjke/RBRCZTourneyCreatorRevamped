@@ -70,6 +70,8 @@ export default Vue.extend( {
             const oneDayAfter = new Date( Number( this.from_date ) + 1000 * 60 * 60 * 24 )
             const sevenDaysAfter = new Date( Number( this.from_date ) + 1000 * 60 * 60 * 24 * 7 )
 
+            const registration_deadline_in_hours = Number( this.store.tournament.registration_deadline )
+
             return {
                 name: this.store.tournament.name.trim().length === 0 ? 'Enter the tournament name' : '',
 
@@ -83,6 +85,14 @@ export default Vue.extend( {
                     this.to_date < oneDayAfter ? `This date must be set atleast 24 hours after the tournament beginning` :
                     this.to_date > sevenDaysAfter ? 'This date cannot be set to end after more than 7 days' :
                     this.to_date <= this.from_date ? `This date cannot be set earlier than 'Valid from' date` :
+                    ''
+                ),
+
+                registration_deadline: (
+                    this.store.tournament.registration_deadline.trim().length === 0 ? '' :
+                    isNaN( registration_deadline_in_hours ) ? 'Must be a number' :
+                    registration_deadline_in_hours <= 0 ? 'Must be positive' :
+                    Number.isInteger( registration_deadline_in_hours ) === false ? 'Must be integer' :
                     ''
                 )
             }

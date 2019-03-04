@@ -13,7 +13,8 @@ export default tsx.componentFactory.create( {
         errors: Object as () => {
             name: string,
             from_datetime: string,
-            to_datetime: string
+            to_datetime: string,
+            registration_deadline: string
         }
     },
 
@@ -108,7 +109,10 @@ export default tsx.componentFactory.create( {
 
                 <tr>
                     <td><label for='tournament.registration_deadline'>Registration deadline (hours before tournament start)</label></td>
-                    <td><input id='tournament.registration_deadline' v-model={ this.tournament.registration_deadline } placeholder='No registration' /></td>
+                    <td>
+                        <input id='tournament.registration_deadline' v-model={ this.tournament.registration_deadline } placeholder='No registration' />
+                        <div class='error'>{ this.errors.registration_deadline }</div>
+                    </td>
                 </tr>
 
                 <tr>
