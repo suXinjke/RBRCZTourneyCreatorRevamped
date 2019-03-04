@@ -1,18 +1,13 @@
-export function formatDate( date: Date ) {
-    return `${( '000' + date.getFullYear() ).slice( -4 )}-${( '0' + ( date.getMonth() + 1 ) ).slice( -2 )}-${( '0' + date.getDate() ).slice( -2 )}`
-}
 
-export function formatTime( date: Date ) {
-    return `${( '0' + date.getHours() ).slice( -2 )}:${( '0' + date.getMinutes() ).slice( -2 )}`
-}
 
 const now = new Date()
 const nextHalfAnHour = new Date( Number( now ) + 1000 * 60 * 30 )
 const nextThreeDays = new Date( Number( now ) + 1000 * 60 * 60 * 24 * 3 )
 
 import tracks_data from './data/tracks.json'
+import { formatDate, formatTime, arrayCanMoveElement, arrayMoveElement } from './util'
 
-const store = {
+export const store = {
     tournament: {
         name: '',
         description: '',
@@ -102,7 +97,7 @@ const store = {
     },
 
     trackMove( track_index: number, offset: number ) {
-        return this.arrayMoveElement( this.tracks, track_index, offset )
+        return arrayMoveElement( this.tracks, track_index, offset )
     },
 
     trackMoveUp( track_index: number ) {
@@ -112,33 +107,4 @@ const store = {
     trackMoveDown( track_index: number ) {
         return this.trackMove( track_index, +1 )
     },
-
-    arrayCanMoveElement( array: any[], index: number, offset: number ) {
-        return (
-            offset > 0 ? index + offset < array.length :
-            offset < 0 ? index + offset >= 0 :
-            true
-        )
-    },
-
-    arrayMoveElement( array: any[], index: number, offset: number ) {
-        if ( this.arrayCanMoveElement( array, index, offset ) === false ) {
-            return false
-        }
-
-        const new_index = index + offset
-
-        if ( new_index >= array.length ) {
-            let k = new_index - array.length + 1
-            while ( k-- ) {
-                array.push( undefined )
-            }
-        }
-
-        array.splice( new_index, 0, array.splice( index, 1 )[ 0 ] )
-
-        return true
-    }
 }
-
-export default store

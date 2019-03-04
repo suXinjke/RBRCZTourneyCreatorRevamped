@@ -1,60 +1,8 @@
-<template>
-    <table><tbody><tr>
-        <td>
-            Countries
-            <select v-model="selected_countries" multiple style="height: 400px; min-width: 140px">
-                <option value="">All countries</option>
-                <option v-for="option in available_countries" v-bind:value="option" :key="option">
-                    {{ option }}
-                </option>
-            </select>
-        </td>
-        <td>
-            Tracks
-            <input v-model="available_tracks_filter" placeholder="Search..."/>
-            <select v-model="available_tracks_selected_ids" multiple style="height: 376px; min-width: 140px">
-                <option
-                    v-for="option in available_tracks_select" v-bind:value="option.id" :key="option.id"
-                    :title="option.value.name" v-on:dblclick="addSelected"
-                >
-                    {{ option.value.name }}
-                </option>
-            </select>
-        </td>
-        <td class="select-buttons">
-            <button v-on:click="moveSelected( -1 )" style="text-align: left; margin-bottom: 16px;">
-                ^^^ Move selected
-            </button>
+import * as tsx from 'vue-tsx-support'
+import { store } from '../store'
+import tracks_data from '../data/tracks.json'
 
-            <button v-on:click="addSelected" style="text-align: left;">Add selected ></button>
-            <button v-on:click="addRandom" style="text-align: left;">Add random ></button>
-            <button v-on:click="addAll" style="text-align: left;">Add all >></button>
-            <button v-on:click="removeSelected" style="text-align: right;">&lt; Remove selected</button>
-            <button v-on:click="removeAll" style="text-align: right;">&lt;&lt; Remove all</button>
-
-            <button v-on:click="moveSelected( +1 )" style="text-align: right; margin-top: 16px;">
-                Move selected vvv
-            </button>
-        </td>
-        <td>
-            Selected tracks
-            <select v-model="tracks_selected_indexes" multiple style="min-width: 200px; height: 400px" v-on:dblclick="removeSelected">
-                <option v-for="( track, index ) in tracks" v-bind:value="index" :key="`${index}${track.id}`">
-                    {{ index + 1 }} - {{ tracks_data[track.id].name }}
-                </option>
-            </select>
-            <span v-if="errors.selected_tracks" class="error">{{ errors.selected_tracks }}</span>
-            <span v-else>Total distance: {{ total_distance }} km</span>
-        </td>
-    </tr></tbody></table>
-</template>
-
-<script lang="ts">
-import Vue from 'vue'
-import store from './store'
-import tracks_data from './data/tracks.json'
-
-export default Vue.extend( {
+export default tsx.componentFactory.create( {
     name: 'TrackList',
     data: function() {
         return {
@@ -146,6 +94,53 @@ export default Vue.extend( {
         removeAll: function() {
             this.tracks.splice( 0 )
         },
+    },
+
+    render: function( h ) {
+        return (
+            <table><tbody><tr>
+                <td>
+                    Countries
+                    <select v-model={ this.selected_countries } multiple style='height: 400px; min-width: 140px'>
+                        <option value=''>All countries</option>
+                    { this.available_countries.map( country =>
+                        <option value={ country } key={ country }>{ country }</option>
+                    ) }
+                    </select>
+                </td>
+                <td>
+                    Tracks
+                    <input v-model={ this.available_tracks_filter } placeholder='Search...'/>
+                    <select v-model={ this.available_tracks_selected_ids } multiple style='height: 376px; min-width: 140px'>
+                    { this.available_tracks_select.map( option =>
+                        <option value={ option.id } key={ option.id } onDblclick={ this.addSelected }>{ option.value.name }</option>
+                    ) }
+                    </select>
+                </td>
+                <td class='select-buttons'>
+                    <button onClick={ () => this.moveSelected( -1 ) } style='text-align: left; margin-bottom: 16px;'>^^^ Move selected</button>
+
+                    <button onClick={ this.addSelected } style='text-align: left;'>Add selected ></button>
+                    <button onClick={ this.addRandom } style='text-align: left;'>Add random ></button>
+                    <button onClick={ this.addAll } style='text-align: left;'>Add all >></button>
+                    <button onClick={ this.removeSelected } style='text-align: right;'>&lt; Remove selected</button>
+                    <button onClick={ this.removeAll } style='text-align: right;'>&lt;&lt; Remove all</button>
+
+                    <button onClick={ () => this.moveSelected( +1 ) } style='text-align: right; margin-top: 16px;'>Move selected vvv</button>
+                </td>
+                <td>
+                    Selected tracks
+                    <select v-model={ this.tracks_selected_indexes } multiple style='min-width: 200px; height: 400px' onDblclick={ this.removeSelected }>
+                    { this.errors.selected_tracks &&
+                        <option class='error'>{ this.errors.selected_tracks }</option>
+                    }
+                    { this.tracks.map( ( track, index ) =>
+                        <option value={ index } key={`${index}${track.id}`}>{ index + 1 } - { this.tracks_data[track.id].name }</option>
+                    ) }
+                    </select>
+                    <div>Total distance: { this.total_distance } km</div>
+                </td>
+            </tr></tbody></table>
+        )
     }
 } )
-</script>

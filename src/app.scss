@@ -1,0 +1,47 @@
+* {
+    font-family: Verdana, Geneva, Tahoma, sans-serif
+}
+
+pre {
+    font-family: 'Courier New', Courier, monospace
+}
+
+.nav-buttons {
+    vertical-align: top;
+
+    button {
+        display: block;
+        text-align: left;
+        width: 200px;
+
+        &.active {
+            font-weight: bold;
+        }
+    }
+}
+
+.select-buttons {
+    vertical-align: middle;
+    button {
+        display: block;
+        width: 200px;
+    }
+}
+
+input, textarea, select {
+    width: 100%;
+}
+
+input[type="checkbox"], input[type="radio"], input[type="date"], input[type="time"] {
+    width: auto;
+}
+
+.table-highlight {
+    text-align: center;
+    font-weight: bold;
+    background-color: lightgray;
+}
+
+.error {
+    color: rgb(230, 0, 0);
+}
