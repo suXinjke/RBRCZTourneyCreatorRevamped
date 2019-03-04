@@ -4,6 +4,7 @@ import Cars from './containers/Cars'
 import TrackList from './containers/TrackList'
 import Track from './containers/Track'
 import ScheduleLegs from './containers/ScheduleLegs'
+import Presets from './containers/Presets'
 import { store } from './store'
 import tracks_data from './data/tracks.json'
 import './app.scss'
@@ -14,7 +15,7 @@ enum Page {
     TrackList = 'track_list',
     Track = 'track',
     ScheduleLegs = 'schedule_legs',
-    JSON = 'json'
+    Presets = 'presets'
 }
 
 export default Vue.extend( {
@@ -125,18 +126,6 @@ export default Vue.extend( {
     },
 
     methods: {
-        onSave: function( slot: number ) {
-            localStorage.setItem( `save${slot}`, JSON.stringify( this.store ) )
-        },
-        onLoad: function( slot: number ) {
-            let data: any = localStorage.getItem( `save${slot}` )
-            if ( !data ) {
-                return
-            }
-            data = JSON.parse( data )
-
-            Object.assign( this.store, data )
-        },
         hasErrors: function( errors: any ) {
             return Object.values( errors ).find( value => Boolean( value ) === true )
         }
@@ -177,7 +166,7 @@ export default Vue.extend( {
                             ) ) }
 
                             <button onClick={ () => { this.current_page = Page.ScheduleLegs } } class={{ active: this.current_page === Page.ScheduleLegs, error: this.hasErrors( this.tracks_errors ) }} style='margin-top: 8px'>Schedule and legs</button>
-                            <button onClick={ () => { this.current_page = Page.JSON } } class={{ active: this.current_page === Page.JSON, error: this.hasErrors( this.tracks_errors ) }}>JSON info</button>
+                            <button onClick={ () => { this.current_page = Page.Presets } } class={{ active: this.current_page === Page.Presets, error: this.hasErrors( this.tracks_errors ) }}>JSON info</button>
 
                             <button disabled={ true } style='margin-top: 8px'>
                                 { this.hasErrors( { ...this.tournament_errors, ...this.cars_errors, ...this.tracks_errors, ...this.legs_errors } ) ? ( <div>Can't send data due to errors</div> ) : ( <div>This button would send the data</div> ) }
@@ -190,21 +179,7 @@ export default Vue.extend( {
                         { this.current_page === Page.Track && <Track track={ store.tracks[this.track_index] } index={ this.track_index } /> }
                         { this.current_page === Page.ScheduleLegs && <ScheduleLegs errors={ this.legs_errors }/> }
 
-                        { this.current_page === Page.JSON && (
-                            <div>
-                                <div>
-                                    <button onClick={ () => { this.onSave( 1 ) } }>Save state 1</button>
-                                    <button onClick={ () => { this.onSave( 2 ) } }>Save state 2</button>
-                                    <button onClick={ () => { this.onSave( 3 ) } }>Save state 3</button>
-                                </div>
-                                <div>
-                                    <button onClick={ () => { this.onLoad( 1 ) } }>Load state 1</button>
-                                    <button onClick={ () => { this.onLoad( 1 ) } }>Load state 2</button>
-                                    <button onClick={ () => { this.onLoad( 1 ) } }>Load state 3</button>
-                                </div>
-                                <pre>{ JSON.stringify( store, null, 4 ).trim() }</pre>
-                            </div>
-                        ) }
+                        { this.current_page === Page.Presets && <Presets /> }
                         </td>
                     </tr>
                 </tbody></table>
