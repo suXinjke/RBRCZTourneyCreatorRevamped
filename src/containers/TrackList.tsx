@@ -1,6 +1,6 @@
 import * as tsx from 'vue-tsx-support'
 import { store } from '../store'
-import tracks_data from '../data/tracks.json'
+import { tracks } from '../data/tracks'
 
 export default tsx.componentFactory.create( {
     name: 'TrackList',
@@ -14,7 +14,7 @@ export default tsx.componentFactory.create( {
             tracks_selected_indexes: [] as number[],
 
             tracks: store.tracks,
-            tracks_data
+            tracks_data: tracks.byId
         }
     },
 
@@ -26,16 +26,16 @@ export default tsx.componentFactory.create( {
 
     computed: {
         available_countries: function() {
-            return Object.keys( tracks_data ).reduce( ( countries, key ) => {
-                const { country } = tracks_data[key]
+            return Object.keys( this.tracks_data ).reduce( ( countries, key ) => {
+                const { country } = this.tracks_data[key]
                 return countries.includes( country ) ? countries : countries.concat( country )
             }, [] as string[] ).sort( ( a, b ) => a > b ? 1 : -1 )
         },
 
         available_tracks_select: function() {
-            return Object.keys( tracks_data ).map( key => ( {
+            return Object.keys( this.tracks_data ).map( key => ( {
                 id: key,
-                value: tracks_data[key]
+                value: this.tracks_data[key]
             } ) )
             .sort( ( a, b ) => a.value.name > b.value.name ? 1 : -1 )
             .filter( option =>
@@ -46,7 +46,11 @@ export default tsx.componentFactory.create( {
         },
 
         total_distance: function() {
-            return this.tracks.reduce<number>( ( sum, track ) => sum + tracks_data[track.id].distance, 0 ).toFixed( 1 )
+            return this.tracks.reduce( ( sum, track ) => sum + this.tracks_data[track.id].distance, 0 ).toFixed( 1 )
+        },
+
+        isLoading: function() {
+            return tracks.fetching
         }
     },
 
@@ -97,6 +101,11 @@ export default tsx.componentFactory.create( {
     },
 
     render: function( h ) {
+        if ( this.isLoading ) {
+            return (
+                <div>Loading track list...</div>
+            )
+        }
         return (
             <table><tbody><tr>
                 <td>

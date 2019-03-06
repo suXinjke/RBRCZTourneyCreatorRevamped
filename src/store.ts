@@ -4,7 +4,7 @@ const now = new Date()
 const nextHalfAnHour = new Date( Number( now ) + 1000 * 60 * 30 )
 const nextThreeDays = new Date( Number( now ) + 1000 * 60 * 60 * 24 * 3 )
 
-import tracks_data from './data/tracks.json'
+import { tracks as tracks_data } from './data/tracks'
 import { formatDate, formatTime, arrayCanMoveElement, arrayMoveElement } from './util'
 
 export const store = {
@@ -50,7 +50,11 @@ export const store = {
         const lastTrack = this.tracks[this.tracks.length - 1]
 
         track_ids.forEach( track_id => {
-            const track = tracks_data[track_id] as TrackData
+            const track = tracks_data.byId[track_id] as TrackData
+            if ( !track ) {
+                return
+            }
+
             store.tracks.push( {
                 id: track_id,
                 name: '',

@@ -1,7 +1,7 @@
 import * as tsx from 'vue-tsx-support'
 import { formatDate, formatTime, arrayCanMoveElement } from '../util'
 import { store } from '../store'
-import tracks_data from '../data/tracks.json'
+import { tracks } from '../data/tracks'
 import TyreSelect from '../components/TyreSelect'
 import WeatherSelect from '../components/WeatherSelect'
 import DamageSelect from '../components/DamageSelect'
@@ -13,7 +13,7 @@ export default tsx.componentFactory.create( {
     name: 'Legs',
     data: function() {
         return {
-            tracks_data,
+            tracks_data: tracks.byId,
 
             tracks: store.tracks,
             legs: store.legs,
@@ -138,7 +138,7 @@ export default tsx.componentFactory.create( {
                         <tr key={ index }>
                             <td>SS { index + 1 }</td>
                             <td>
-                                <input v-model={ track.name } placeholder={ tracks_data[track.id].name } style='width: 94%;'/>
+                                <input v-model={ track.name } placeholder={ this.tracks_data[track.id].name } style='width: 94%;'/>
                             </td>
                             <td>
                                 <WeatherSelect track={ track }/>

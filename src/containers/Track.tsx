@@ -6,7 +6,7 @@ import SurfaceAgeSelect from '../components/SurfaceAgeSelect'
 import ServiceSelect from '../components/ServiceSelect'
 import DamageSelect from '../components/DamageSelect'
 import TyreSelect from '../components/TyreSelect'
-import tracks_data from '../data/tracks.json'
+import { tracks } from '../data/tracks'
 import cars_data from '../data/cars.json'
 
 export default tsx.componentFactory.create( {
@@ -17,13 +17,14 @@ export default tsx.componentFactory.create( {
     },
     data: function() {
         return {
+            tracks_data: tracks.byId,
             cars_data,
             selected_car_ids: store.cars_physics.selected_car_ids
         }
     },
     computed: {
         track_data: function() {
-            return tracks_data[this.track.id] as TrackData
+            return this.tracks_data[this.track.id] as TrackData
         },
         car_id_options: function() {
             return store.cars_physics.selected_car_ids.map( car_id => ( {

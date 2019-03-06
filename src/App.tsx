@@ -6,7 +6,7 @@ import Track from './containers/Track'
 import ScheduleLegs from './containers/ScheduleLegs'
 import Presets from './containers/Presets'
 import { store } from './store'
-import tracks_data from './data/tracks.json'
+import { tracks } from './data/tracks'
 import './app.scss'
 
 enum Page {
@@ -25,7 +25,7 @@ export default Vue.extend( {
             current_page: Page.Tournament,
             track_index: 0,
 
-            tracks_data,
+            tracks_data: tracks.byId,
 
             store
         }
@@ -142,19 +142,23 @@ export default Vue.extend( {
     },
 
     watch: {
-        'store.tracks': function( tracks: TrackData[] ) {
-            if ( tracks.length < 2 ) {
+        'store.tracks': function( newTracks: TrackData[] ) {
+            if ( newTracks.length < 2 ) {
                 store.legs.splice( 0, store.legs.length )
                 return
             }
 
             for ( let i = store.legs.length - 1 ; i >= 0 ; i-- ) {
                 const leg = store.legs[i]
-                if ( leg.after_stage_divider >= tracks.length - 1 ) {
+                if ( leg.after_stage_divider >= newTracks.length - 1 ) {
                     store.legs.splice( i, 1 )
                 }
             }
         }
+    },
+
+    mounted: function() {
+        tracks.fetchTracks()
     },
 
     render: function( h ) {
@@ -171,7 +175,7 @@ export default Vue.extend( {
                                 <button key={`track${index}`} onClick={ () => { this.current_page = Page.Track; this.track_index = index } }
                                     class={{ active: this.current_page === Page.Track && this.track_index === index }}
                                 >
-                                    SS { index + 1 } - { tracks_data[track.id].name } { track.name || '' }
+                                    SS { index + 1 } - { this.tracks_data[track.id].name } { track.name || '' }
                                 </button>
                             ) ) }
 
