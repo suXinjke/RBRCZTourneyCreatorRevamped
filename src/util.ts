@@ -39,3 +39,7 @@ export function objectWithoutNulls<T = any>( obj: T ): Partial<T> {
         [id]: ( obj as any )[id]
     } ), {} )
 }
+
+export function getElementByXpath( document: Document, path: string ) {
+    return document.evaluate( path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null ).singleNodeValue
+}
