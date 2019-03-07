@@ -31,7 +31,9 @@ export default Vue.extend( {
             tracks_data: tracks.byId,
             tracks_settings: trackSettings,
 
-            store
+            store,
+
+            hidden: ''
         }
     },
 
@@ -166,6 +168,18 @@ export default Vue.extend( {
 
         'store.cars_physics.car_physics_id': function( newPhysicsId: string ) {
             cars.fetchCars( newPhysicsId )
+        },
+
+        'hidden': {
+            immediate: true,
+            handler: function( newValue: boolean ) {
+                const tournamentForm = document.getElementById( 'tournament' )
+                if ( !tournamentForm ) {
+                    return
+                }
+
+                tournamentForm.style.display = newValue ? '' : 'none'
+            }
         }
     },
 
@@ -176,8 +190,12 @@ export default Vue.extend( {
 
     render: function( h ) {
         return (
-            <div id='app'>
-                <table><tbody>
+            <div id='tournament_revamped'>
+                <div>
+                    <input id='tournament_hidden_radio_on' type='radio' name='tournament_hidden_radio' value='on' v-model={ this.hidden }/> <label for='tournament_hidden_radio_on'>Original</label>
+                    <input id='tournament_hidden_radio_off' type='radio' name='tournament_hidden_radio' value='' v-model={ this.hidden }/> <label for='tournament_hidden_radio_off'>Revamped</label>
+                </div>
+                <table style={ this.hidden ? 'display: none;' : ''}><tbody>
                     <tr>
                         <td class='nav-buttons'>
                             <button onClick={ () => { this.current_page = Page.Tournament } } class={{ active: this.current_page === Page.Tournament, error: this.hasErrors( this.tournament_errors ) }}>Tournament</button>
