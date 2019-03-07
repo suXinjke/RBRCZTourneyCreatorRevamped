@@ -1,11 +1,18 @@
 import * as tsx from 'vue-tsx-support'
 import { store } from '../store'
+import { constants } from '../data/constants'
 
 export default tsx.componentFactory.create( {
     name: 'Tournament',
     data: function() {
         return {
             tournament: store.tournament
+        }
+    },
+
+    computed: {
+        superally: function() {
+            return constants.fetched ? constants.superally : undefined
         }
     },
 
@@ -118,12 +125,15 @@ export default tsx.componentFactory.create( {
                 <tr>
                     <td>Superally penalty</td>
                     <td>
+                    { this.superally ?
                         <select v-model={ this.tournament.superally_penalty }>
-                            <option value={ 60 }>60s</option>
-                            <option value={ 120 }>120s</option>
-                            <option value={ 180 }>180s</option>
-                            <option value={ 300 }>300s</option>
+                        { this.superally.map( option =>
+                            <option key={ `superally${option.id}` } value={ option.id }>{ option.label }</option>
+                        ) }
                         </select>
+                    :
+                        <div>Loading...</div>
+                    }
                     </td>
                 </tr>
 

@@ -12,7 +12,7 @@ import TimeOfDaySelect from '../components/TimeOfDaySelect'
 import ShortcutSelect from '../components/ShortcutSelect'
 import { tracks } from '../data/tracks'
 import { trackSettings } from '../data/track-settings'
-import cars_data from '../data/cars.json'
+import { cars } from '../data/cars'
 
 export default tsx.componentFactory.create( {
     name: 'Track',
@@ -24,7 +24,6 @@ export default tsx.componentFactory.create( {
         return {
             tracks_data: tracks.byId,
             tracks_settings: trackSettings.byId[this.track.id],
-            cars_data,
             selected_car_ids: store.cars_physics.selected_car_ids
         }
     },
@@ -35,7 +34,7 @@ export default tsx.componentFactory.create( {
         car_id_options: function() {
             return store.cars_physics.selected_car_ids.map( car_id => ( {
                 id: car_id,
-                value: cars_data[car_id] as string
+                value: cars.byId[car_id] as string
             } ) ).sort( ( a, b ) => a.value.toLowerCase() > b.value.toLowerCase() ? 1 : -1 )
         },
         is_last_track: function() {

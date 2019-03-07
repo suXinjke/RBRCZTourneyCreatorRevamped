@@ -7,7 +7,9 @@ import ScheduleLegs from './containers/ScheduleLegs'
 import Presets from './containers/Presets'
 import { store } from './store'
 import { tracks } from './data/tracks'
+import { constants } from './data/constants'
 import { trackSettings } from './data/track-settings'
+import { cars } from './data/cars'
 import './app.scss'
 
 enum Page {
@@ -160,11 +162,16 @@ export default Vue.extend( {
                     store.legs.splice( i, 1 )
                 }
             }
+        },
+
+        'store.cars_physics.car_physics_id': function( newPhysicsId: string ) {
+            cars.fetchCars( newPhysicsId )
         }
     },
 
     mounted: function() {
         tracks.fetchTracks()
+        constants.fetchTournamentConstants()
     },
 
     render: function( h ) {

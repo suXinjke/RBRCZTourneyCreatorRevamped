@@ -1,70 +1,7 @@
 import * as tsx from 'vue-tsx-support'
 import { store } from '../store'
-import cars_data from '../data/cars.json'
-import car_packs_data from '../data/car-packs.json'
-
-interface Physics {
-    [index: string]: {
-        name: string,
-        track_physics: {
-            [index: string]: string
-        },
-        car_packs: string[]
-    }
-}
-
-const physics: Physics = {
-    1: {
-        name: 'Default car physics',
-        track_physics: {
-            21: 'Base physic',
-            47: 'Snow mod + Snow France',
-            48: 'Snow France',
-            49: 'Snow mod'
-        },
-        car_packs: [
-            '500',
-            '501',
-            '502',
-            '503',
-            '504',
-            '505',
-            '506',
-            '510',
-            '512',
-            '513',
-            '515',
-            '516',
-            '518',
-            '519'
-        ]
-    },
-    2: {
-        name: 'NPG physics',
-        track_physics: {
-            2404: 'NGP Physics 4.4',
-            2405: 'NGP Physics 5.0.1'
-        },
-        car_packs: [
-            '520',
-            '521',
-            '522',
-            '523',
-            '524',
-            '525',
-            '526',
-            '527',
-            '528',
-            '529',
-            '530',
-            '531',
-            '532',
-            '533',
-            '550',
-            '551'
-        ]
-    }
-}
+import { constants } from '../data/constants'
+import { cars } from '../data/cars'
 
 export default tsx.componentFactory.create( {
     name: 'Cars',
@@ -91,41 +28,41 @@ export default tsx.componentFactory.create( {
 
     computed: {
         car_physics_select: function() {
-            return Object.keys( physics ).map( key => ( {
-                id: key,
-                value: physics[key].name
-            } ) )
+            return constants.fetched ? constants.carPhysics : undefined
         },
 
         track_physics_select: function() {
-            const car_physics_id = this.cars_physics.car_physics_id
-            if ( !car_physics_id ) {
-                return []
+            if ( !this.car_physics_select ) {
+                return undefined
             }
 
-            return Object.keys( physics[car_physics_id].track_physics ).map( key => ( {
-                id: key,
-                value: physics[car_physics_id].track_physics[key]
-            } ) )
+            return cars.trackPhysics[this.cars_physics.car_physics_id]
         },
 
         car_packs_select: function() {
-            const car_physics_id = this.cars_physics.car_physics_id
-            if ( !car_physics_id ) {
-                return []
+            if ( !this.car_physics_select ) {
+                return undefined
             }
 
-            return physics[car_physics_id].car_packs.map( ( key: string ) => ( {
-                id: key,
-                value: car_packs_data[key].name
+            if ( !cars.carPacks[this.cars_physics.car_physics_id] ) {
+                return undefined
+            }
+
+            const carPack = cars.carPacks[this.cars_physics.car_physics_id]
+
+            return Object.keys( carPack ).map( id => ( {
+                id,
+                label: carPack[id].name
             } ) )
         },
         available_cars: function() {
-            if ( !this.car_pack ) {
+            if ( !this.car_packs_select ) {
                 return []
             }
 
-            return this.carIdsForSelect( car_packs_data[this.car_pack].cars )
+            const carPack = cars.carPacks[this.cars_physics.car_physics_id][this.car_pack]
+
+            return this.carIdsForSelect( carPack.cars )
         },
         selected_cars: function() {
             return this.carIdsForSelect( this.cars_physics.selected_car_ids )
@@ -145,7 +82,7 @@ export default tsx.componentFactory.create( {
         },
 
         addAll: function() {
-            this.addToSelected( car_packs_data[this.car_pack].cars )
+            this.addToSelected( this.available_cars.map( car => car.id ) )
         },
 
         removeSelected: function() {
@@ -160,7 +97,7 @@ export default tsx.componentFactory.create( {
         carIdsForSelect: function( car_ids: string[] ) {
             return car_ids.map( car_id => ( {
                 id: car_id,
-                value: cars_data[car_id] as string
+                value: cars.byId[car_id] as string
             } ) ).sort( ( a, b ) => a.value.toLowerCase() > b.value.toLowerCase() ? 1 : -1 )
         }
     },
@@ -180,32 +117,44 @@ export default tsx.componentFactory.create( {
                 <td>
                     <div>
                         Car physics
+                    { this.car_physics_select ?
                         <select v-model={ this.cars_physics.car_physics_id }>
                             <option disabled value=''>Select car physics</option>
                         { this.car_physics_select.map( option =>
-                            <option key={ option.id } value={ option.id }>{ option.value }</option>
+                            <option key={ option.id } value={ option.id }>{ option.label }</option>
                         ) }
                         </select>
+                    :
+                        <div>Loading...</div>
+                    }
                     </div>
 
                     <div>
                         Track physics
+                    { this.track_physics_select ?
                         <select v-model={ this.cars_physics.track_physics_id }>
                             <option disabled value=''>Select track physics</option>
                         { this.track_physics_select.map( option =>
-                            <option key={ option.id } value={ option.id }>{ option.value }</option>
+                            <option key={ option.id } value={ option.id }>{ option.label }</option>
                         ) }
                         </select>
+                    :
+                        <div>Loading...</div>
+                    }
                     </div>
 
                     <div>
                         Car pack
+                    { this.car_packs_select ?
                         <select v-model={ this.car_pack }>
                             <option disabled value=''>Select car pack</option>
                         { this.car_packs_select.map( option =>
-                            <option key={ option.id } value={ option.id }>{ option.value }</option>
+                            <option key={ option.id } value={ option.id }>{ option.label }</option>
                         ) }
                         </select>
+                    :
+                        <div>Loading...</div>
+                    }
                     </div>
 
                     <div>
