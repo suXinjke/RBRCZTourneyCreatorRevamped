@@ -40,6 +40,21 @@ export function objectWithoutNulls<T = any>( obj: T ): Partial<T> {
     } ), {} )
 }
 
-export function getElementByXpath( document: Document, path: string ) {
-    return document.evaluate( path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null ).singleNodeValue
+export function getElementByXpath( document: Document, path: string ): HTMLElement | null {
+    return document.evaluate( path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null ).singleNodeValue as HTMLElement
+}
+
+export function extractSelectOptions( node: HTMLElement | null ): SelectOption[] {
+    const options: SelectOption[] = []
+    if ( node ) {
+        for ( const child_node of node.children ) {
+            const id = child_node.getAttribute( 'value' )
+            const label = child_node.textContent
+            if ( id && label ) {
+                options.push( { id, label } )
+            }
+        }
+    }
+
+    return options
 }

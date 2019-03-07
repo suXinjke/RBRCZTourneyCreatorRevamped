@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import { getElementByXpath, extractSelectOptions } from '../util'
 
 export const constants = Vue.observable( {
     superally: [] as SelectOption[],
@@ -14,25 +15,13 @@ export const constants = Vue.observable( {
 
         this.fetching = true
 
-        return new Promise( res => {
-            setTimeout( () => {
-                this.superally = [
-                    { id: '60', label: '60s' },
-                    { id: '120', label: '120s' },
-                    { id: '180', label: '180s' },
-                    { id: '300', label: '300s' },
-                ]
+        const superally_node = getElementByXpath( document, '//*[@id="SRallyPenaltySel"]' )
+        this.superally = extractSelectOptions( superally_node )
 
-                this.carPhysics = [
-                    { id: '21', label: 'Default car physics' },
-                    { id: '700', label: 'NGP Physics' },
-                ]
+        const car_physics_node = getElementByXpath( document, '//*[@id="PhysicsModId"]' )
+        this.carPhysics = extractSelectOptions( car_physics_node )
 
-                this.fetching = false
-                this.fetched = true
-
-                res()
-            }, 1000 )
-        } )
+        this.fetching = false
+        this.fetched = true
     }
 } )
