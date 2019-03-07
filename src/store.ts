@@ -58,28 +58,25 @@ export const store = {
             store.tracks.push( {
                 id: track_id,
                 name: '',
-                surface_type: 'Dry',
-                surface_age: 'New',
+                surface_type: '0',
+                surface_age: '0',
 
-                weather: lastTrack ? lastTrack.weather : 'Good weather',
-                weather2: 'Crisp',
+                weather: '0',
+                weather2: '0',
                 weather_change_allowed: false,
-                time_of_day: 'Early evening',
-                clouds: 'Clear',
+                time_of_day: '0',
+                clouds: '0',
 
                 service_time_mins: 0,
                 setup_change_allowed: lastTrack ? lastTrack.setup_change_allowed : true,
                 tyre_replacement_allowed: false,
                 tyre_change_allowed: lastTrack ? lastTrack.tyre_change_allowed : true,
-                tyres:
-                    track.surface === 'Snow' ? 'Snow' :
-                    track.surface === 'Tarmac' ? 'Dry tarmac' :
-                    'Dry gravel',
+                tyres: '0',
 
                 damage_change_allowed: false,
-                damage: lastTrack ? lastTrack.damage : 'Realistic',
+                damage: '0',
 
-                shortcut_check: 'None',
+                shortcut_check: '0',
 
                 superally: lastTrack ? lastTrack.superally : false,
                 superally_hold: false,
@@ -111,4 +108,104 @@ export const store = {
     trackMoveDown( track_index: number ) {
         return this.trackMove( track_index, +1 )
     },
+
+    tournamentFromHTML( html: string ) {
+        // TODO
+    },
+
+    tournamentPostOutput() {
+        return {
+            flow: '0',
+            curstagepos: '0',
+            page_selector: '1',
+            submit_page_go: 'Go',
+            tour_name: this.tournament.name,
+            tour_descr: this.tournament.description,
+            online: this.tournament.online ? 'on' : '',
+            offlinet: this.tournament.offline ? 'on' : '',
+            PhysicsModId: this.cars_physics.car_physics_id,
+            tour_from_date: this.tournament.from_date.split( '-' ).reverse().map( number_string => Number( number_string ).toString() ).join( '.' ),
+            tour_from_time: this.tournament.from_time,
+            tour_to_date: this.tournament.to_date.split( '-' ).reverse().map( number_string => Number( number_string ).toString() ).join( '.' ),
+            tour_to_time: this.tournament.to_time,
+            cantresrace: this.tournament.cant_resume ? 'on' : '',
+            onecaronly: this.tournament.only_one_car ? 'on' : '',
+            nosplits: this.tournament.dont_show_splits ? 'on' : '',
+            notempres: this.tournament.dont_show_temporary_results_in_rbr ? 'on' : '',
+            notempresweb: this.tournament.dont_show_temporary_results_in_web ? 'on' : '',
+            savereplays: this.tournament.save_replays ? 'on' : '',
+            getcomments: this.tournament.require_stage_comments ? 'on' : '',
+            testrun: this.tournament.test_tournament ? 'on' : '',
+            ispassword: this.tournament.password ? 'on' : '',
+            tour_password: this.tournament.password,
+            has_legs: this.legs.length > 0 ? 'on' : '',
+            need_enroll: this.tournament.registration_deadline ? 'on' : '',
+            enroll_close: this.tournament.registration_deadline,
+            SRallyPenaltySel: this.tournament.superally_penalty.toString(),
+            tourstages: this.tracks.map( track => track.id ).join( ',' ) + ','
+        }
+    },
+
+    carsPhysicsFromHTML( html: string ) {
+        // TODO
+    },
+
+    carsPhysicsPostOutput() {
+        return {
+            flow: '1',
+            curstagepos: '0',
+            page_selector: '2',
+            submit_page_go: 'Go',
+            LicSel: [ '0' ], // TODO: License selection
+            ModsSel: [ this.cars_physics.track_physics_id, ...this.cars_physics.selected_car_ids ]
+        }
+    },
+
+    trackFromHTML( index: number, html: string ) {
+        // TODO
+    },
+
+    trackPostOutput( index: number ) {
+        const track = this.tracks[index]
+        return {
+            flow: '2',
+            curstagepos: ( index + 1 ).toString(),
+            page_selector: '2',
+            submit_page_go: 'Go',
+            renamestage: track.name ? 'on' : '',
+            stage_rename: track.name,
+            CarSel: this.cars_physics.selected_car_ids[0],
+            SurfSel: track.surface_type, // TODO: needs proper ID
+            SurfAgeSel: track.surface_age, // TODO: needs proper ID
+            TexturesPackSel: '-1',
+            WeatherPackSel: '-1',
+            canchangeweather: track.weather_change_allowed ? 'on' : '',
+            WeatherSel: track.weather, // TODO: needs proper ID
+            TimeOfDaySel: track.time_of_day, // TODO: needs proper ID
+            Weather2Sel: track.weather2, // TODO: needs proper ID
+            CloudsSel: track.clouds, // TODO: needs proper ID
+            ServiceSel: track.service_time_mins.toString(),
+            canrenewtyres: track.tyre_replacement_allowed ? 'on' : '',
+            canchangetyres: track.tyre_change_allowed ? 'on' : '',
+            TyresSel: track.tyres, // TODO: needs proper ID
+            canchangedamage: track.damage_change_allowed ? 'on' : '',
+            DamageSel: track.damage, // TODO: needs proper ID
+            CutcheckerSel: track.shortcut_check, // TODO: needs proper ID
+            leg_pos: 'TODO', // TODO: calculate the leg position
+            allowsuperally: track.superally ? 'on' : '',
+            superallychpoint: track.superally_hold ? 'on' : '',
+            canrepeatstage: track.retry_allowed ? 'on' : '',
+            canchangesetup: track.setup_change_allowed ? 'on' : ''
+        }
+    },
+
+    legsFromHTML( html: string ) {
+        // TODO
+    },
+
+    legsPostOutput() {
+        // TODO
+        return {
+        }
+    }
 }

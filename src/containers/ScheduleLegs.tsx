@@ -2,6 +2,7 @@ import * as tsx from 'vue-tsx-support'
 import { formatDate, formatTime, arrayCanMoveElement } from '../util'
 import { store } from '../store'
 import { tracks } from '../data/tracks'
+import { trackSettings } from '../data/track-settings'
 import TyreSelect from '../components/TyreSelect'
 import WeatherSelect from '../components/WeatherSelect'
 import DamageSelect from '../components/DamageSelect'
@@ -14,6 +15,7 @@ export default tsx.componentFactory.create( {
     data: function() {
         return {
             tracks_data: tracks.byId,
+            tracks_settings: trackSettings.byId,
 
             tracks: store.tracks,
             legs: store.legs,

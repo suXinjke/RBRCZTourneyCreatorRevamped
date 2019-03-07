@@ -2,7 +2,7 @@ import * as tsx from 'vue-tsx-support'
 import { trackSettings } from '../data/track-settings'
 
 export default tsx.componentFactory.create( {
-    name: 'DamageSelect',
+    name: 'CloudSelect',
     props: {
         track: Object as () => SelectedTrack,
     },
@@ -18,9 +18,9 @@ export default tsx.componentFactory.create( {
         }
 
         return (
-            <select v-model={ this.track.damage }>
-            { this.settings.damage.map( option =>
-                <option key={ `damage${option.id}` } value={ option.id }>{ option.label }</option>
+            <select v-model={ this.track.clouds }>
+            { this.settings.clouds.map( option =>
+                <option key={ `clouds${option.id}` } value={ option.id }>{ option.label }</option>
             ) }
             </select>
         )

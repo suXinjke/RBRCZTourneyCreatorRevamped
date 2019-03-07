@@ -7,6 +7,7 @@ import ScheduleLegs from './containers/ScheduleLegs'
 import Presets from './containers/Presets'
 import { store } from './store'
 import { tracks } from './data/tracks'
+import { trackSettings } from './data/track-settings'
 import './app.scss'
 
 enum Page {
@@ -26,6 +27,7 @@ export default Vue.extend( {
             track_index: 0,
 
             tracks_data: tracks.byId,
+            tracks_settings: trackSettings,
 
             store
         }
@@ -143,6 +145,10 @@ export default Vue.extend( {
 
     watch: {
         'store.tracks': function( newTracks: TrackData[] ) {
+            newTracks.forEach( ( track, index ) => {
+                this.tracks_settings.fetchTrackSettings( track.id, index )
+            } )
+
             if ( newTracks.length < 2 ) {
                 store.legs.splice( 0, store.legs.length )
                 return
@@ -190,7 +196,7 @@ export default Vue.extend( {
                         { this.current_page === Page.Tournament && <Tournament errors={ this.tournament_errors }/> }
                         { this.current_page === Page.Cars && <Cars errors={ this.cars_errors }/> }
                         { this.current_page === Page.TrackList && <TrackList errors={ this.tracks_errors }/> }
-                        { this.current_page === Page.Track && <Track track={ store.tracks[this.track_index] } index={ this.track_index } /> }
+                        { this.current_page === Page.Track && <Track track={ this.store.tracks[this.track_index] } index={ this.track_index } /> }
                         { this.current_page === Page.ScheduleLegs && <ScheduleLegs errors={ this.legs_errors }/> }
 
                         { this.current_page === Page.Presets && <Presets /> }

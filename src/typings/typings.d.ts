@@ -3,6 +3,23 @@ import 'vue-tsx-support/options/allow-element-unknown-attrs'
 
 declare global {
 
+    interface SelectOption {
+        id: string,
+        label: string
+    }
+
+    interface TrackSettings {
+        surface_type: SelectOption[],
+        surface_age: SelectOption[],
+        weather: SelectOption[],
+        weather2: SelectOption[],
+        clouds: SelectOption[],
+        time_of_day: SelectOption[],
+        tyres: SelectOption[],
+        damage: SelectOption[],
+        shortcut_check: SelectOption[]
+    }
+
     interface SelectedTrack {
         id: string,
         name: string,

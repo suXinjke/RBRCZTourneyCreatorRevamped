@@ -1,16 +1,21 @@
 import * as tsx from 'vue-tsx-support'
 import { store } from '../store'
 import WeatherSelect from '../components/WeatherSelect'
+import WeatherTwoSelect from '../components/WeatherTwoSelect'
+import CloudsSelect from '../components/CloudSelect'
 import SurfaceTypeSelect from '../components/SurfaceTypeSelect'
 import SurfaceAgeSelect from '../components/SurfaceAgeSelect'
 import ServiceSelect from '../components/ServiceSelect'
 import DamageSelect from '../components/DamageSelect'
 import TyreSelect from '../components/TyreSelect'
+import TimeOfDaySelect from '../components/TimeOfDaySelect'
+import ShortcutSelect from '../components/ShortcutSelect'
 import { tracks } from '../data/tracks'
+import { trackSettings } from '../data/track-settings'
 import cars_data from '../data/cars.json'
 
 export default tsx.componentFactory.create( {
-    name: 'TrackList',
+    name: 'Track',
     props: {
         track: Object as () => SelectedTrack,
         index: Number
@@ -18,6 +23,7 @@ export default tsx.componentFactory.create( {
     data: function() {
         return {
             tracks_data: tracks.byId,
+            tracks_settings: trackSettings.byId[this.track.id],
             cars_data,
             selected_car_ids: store.cars_physics.selected_car_ids
         }
@@ -84,31 +90,23 @@ export default tsx.componentFactory.create( {
                 </tr>
 
                 <tr>
-                    <td>Weather 2</td>
+                    <td>Time of day</td>
                     <td>
-                        <select v-model={ this.track.weather2 }>
-                            <option>Crisp</option>
-                            <option>Hazy</option>
-                            <option>No rain</option>
-                            <option>Light rain</option>
-                            <option>Heavy rain</option>
-                            <option>No snow</option>
-                            <option>Light snow</option>
-                            <option>Heavy snow</option>
-                            <option>Light fog</option>
-                            <option>Heavy fog</option>
-                        </select>
+                        <TimeOfDaySelect track={ this.track }/>
                     </td>
                 </tr>
 
                 <tr>
-                    <td>Time of day</td>
+                    <td>Weather 2</td>
                     <td>
-                        <select v-model={ this.track.time_of_day }>
-                            <option>Morning</option>
-                            <option>Evening</option>
-                            <option>Early evening</option>
-                        </select>
+                        <WeatherTwoSelect track={ this.track }/>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Clouds</td>
+                    <td>
+                        <CloudsSelect track={ this.track }/>
                     </td>
                 </tr>
 
@@ -162,10 +160,7 @@ export default tsx.componentFactory.create( {
                 <tr>
                     <td>Shortcuts checking</td>
                     <td>
-                        <select v-model={ this.track.shortcut_check }>
-                            <option>None</option>
-                            <option>Low</option>
-                        </select>
+                        <ShortcutSelect track={ this.track }/>
                     </td>
                 </tr>
 
