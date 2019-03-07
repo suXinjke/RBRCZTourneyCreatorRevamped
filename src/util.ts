@@ -32,3 +32,10 @@ export function arrayMoveElement( array: any[], index: number, offset: number ) 
 
     return true
 }
+
+export function objectWithoutNulls<T = any>( obj: T ): Partial<T> {
+    return Object.keys( obj ).reduce( ( prev, id ) => ( ( obj as any )[id] === null ? prev : {
+        ...prev,
+        [id]: ( obj as any )[id]
+    } ), {} )
+}

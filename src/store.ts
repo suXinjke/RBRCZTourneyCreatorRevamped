@@ -5,7 +5,7 @@ const nextHalfAnHour = new Date( Number( now ) + 1000 * 60 * 30 )
 const nextThreeDays = new Date( Number( now ) + 1000 * 60 * 60 * 24 * 3 )
 
 import { tracks as tracks_data } from './data/tracks'
-import { formatDate, formatTime, arrayCanMoveElement, arrayMoveElement } from './util'
+import { formatDate, formatTime, arrayMoveElement, objectWithoutNulls } from './util'
 
 export const store = {
     tournament: {
@@ -114,36 +114,36 @@ export const store = {
     },
 
     tournamentPostOutput() {
-        return {
+        return objectWithoutNulls( {
             flow: '0',
             curstagepos: '0',
             page_selector: '1',
             submit_page_go: 'Go',
             tour_name: this.tournament.name,
             tour_descr: this.tournament.description,
-            online: this.tournament.online ? 'on' : '',
-            offlinet: this.tournament.offline ? 'on' : '',
+            online: this.tournament.online ? 'on' : null,
+            offlinet: this.tournament.offline ? 'on' : null,
             PhysicsModId: this.cars_physics.car_physics_id,
             tour_from_date: this.tournament.from_date.split( '-' ).reverse().map( number_string => Number( number_string ).toString() ).join( '.' ),
             tour_from_time: this.tournament.from_time,
             tour_to_date: this.tournament.to_date.split( '-' ).reverse().map( number_string => Number( number_string ).toString() ).join( '.' ),
             tour_to_time: this.tournament.to_time,
-            cantresrace: this.tournament.cant_resume ? 'on' : '',
-            onecaronly: this.tournament.only_one_car ? 'on' : '',
-            nosplits: this.tournament.dont_show_splits ? 'on' : '',
-            notempres: this.tournament.dont_show_temporary_results_in_rbr ? 'on' : '',
-            notempresweb: this.tournament.dont_show_temporary_results_in_web ? 'on' : '',
-            savereplays: this.tournament.save_replays ? 'on' : '',
-            getcomments: this.tournament.require_stage_comments ? 'on' : '',
-            testrun: this.tournament.test_tournament ? 'on' : '',
-            ispassword: this.tournament.password ? 'on' : '',
-            tour_password: this.tournament.password,
-            has_legs: this.legs.length > 0 ? 'on' : '',
-            need_enroll: this.tournament.registration_deadline ? 'on' : '',
-            enroll_close: this.tournament.registration_deadline,
+            cantresrace: this.tournament.cant_resume ? 'on' : null,
+            onecaronly: this.tournament.only_one_car ? 'on' : null,
+            nosplits: this.tournament.dont_show_splits ? 'on' : null,
+            notempres: this.tournament.dont_show_temporary_results_in_rbr ? 'on' : null,
+            notempresweb: this.tournament.dont_show_temporary_results_in_web ? 'on' : null,
+            savereplays: this.tournament.save_replays ? 'on' : null,
+            getcomments: this.tournament.require_stage_comments ? 'on' : null,
+            testrun: this.tournament.test_tournament ? 'on' : null,
+            ispassword: this.tournament.password ? 'on' : null,
+            tour_password: this.tournament.password || null,
+            has_legs: this.legs.length > 0 ? 'on' : null,
+            need_enroll: this.tournament.registration_deadline ? 'on' : null,
+            enroll_close: this.tournament.registration_deadline || null,
             SRallyPenaltySel: this.tournament.superally_penalty.toString(),
             tourstages: this.tracks.map( track => track.id ).join( ',' ) + ','
-        }
+        } )
     },
 
     carsPhysicsFromHTML( html: string ) {
@@ -151,14 +151,14 @@ export const store = {
     },
 
     carsPhysicsPostOutput() {
-        return {
+        return objectWithoutNulls( {
             flow: '1',
             curstagepos: '0',
             page_selector: '2',
             submit_page_go: 'Go',
             LicSel: [ '0' ], // TODO: License selection
             ModsSel: [ this.cars_physics.track_physics_id, ...this.cars_physics.selected_car_ids ]
-        }
+        } )
     },
 
     trackFromHTML( index: number, html: string ) {
@@ -167,36 +167,36 @@ export const store = {
 
     trackPostOutput( index: number ) {
         const track = this.tracks[index]
-        return {
+        return objectWithoutNulls( {
             flow: '2',
             curstagepos: ( index + 1 ).toString(),
             page_selector: '2',
             submit_page_go: 'Go',
-            renamestage: track.name ? 'on' : '',
+            renamestage: track.name ? 'on' : null,
             stage_rename: track.name,
             CarSel: this.cars_physics.selected_car_ids[0],
-            SurfSel: track.surface_type, // TODO: needs proper ID
-            SurfAgeSel: track.surface_age, // TODO: needs proper ID
+            SurfSel: track.surface_type,
+            SurfAgeSel: track.surface_age,
             TexturesPackSel: '-1',
             WeatherPackSel: '-1',
-            canchangeweather: track.weather_change_allowed ? 'on' : '',
-            WeatherSel: track.weather, // TODO: needs proper ID
-            TimeOfDaySel: track.time_of_day, // TODO: needs proper ID
-            Weather2Sel: track.weather2, // TODO: needs proper ID
-            CloudsSel: track.clouds, // TODO: needs proper ID
+            canchangeweather: track.weather_change_allowed ? 'on' : null,
+            WeatherSel: track.weather,
+            TimeOfDaySel: track.time_of_day,
+            Weather2Sel: track.weather2,
+            CloudsSel: track.clouds,
             ServiceSel: track.service_time_mins.toString(),
-            canrenewtyres: track.tyre_replacement_allowed ? 'on' : '',
-            canchangetyres: track.tyre_change_allowed ? 'on' : '',
-            TyresSel: track.tyres, // TODO: needs proper ID
-            canchangedamage: track.damage_change_allowed ? 'on' : '',
-            DamageSel: track.damage, // TODO: needs proper ID
-            CutcheckerSel: track.shortcut_check, // TODO: needs proper ID
+            canrenewtyres: track.tyre_replacement_allowed ? 'on' : null,
+            canchangetyres: track.tyre_change_allowed ? 'on' : null,
+            TyresSel: track.tyres,
+            canchangedamage: track.damage_change_allowed ? 'on' : null,
+            DamageSel: track.damage,
+            CutcheckerSel: track.shortcut_check,
             leg_pos: 'TODO', // TODO: calculate the leg position
-            allowsuperally: track.superally ? 'on' : '',
-            superallychpoint: track.superally_hold ? 'on' : '',
-            canrepeatstage: track.retry_allowed ? 'on' : '',
-            canchangesetup: track.setup_change_allowed ? 'on' : ''
-        }
+            allowsuperally: track.superally ? 'on' : null,
+            superallychpoint: track.superally_hold ? 'on' : null,
+            canrepeatstage: track.retry_allowed ? 'on' : null,
+            canchangesetup: track.setup_change_allowed ? 'on' : null
+        } )
     },
 
     legsFromHTML( html: string ) {
