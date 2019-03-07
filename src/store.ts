@@ -142,7 +142,7 @@ export const store = {
             need_enroll: this.tournament.registration_deadline ? 'on' : null,
             enroll_close: this.tournament.registration_deadline || null,
             SRallyPenaltySel: this.tournament.superally_penalty.toString(),
-            tourstages: this.tracks.map( track => track.id ).join( ',' ) + ','
+            tourstages: this.tracks.map( track => track.id ).join( ';' ) + ';'
         } )
     },
 
