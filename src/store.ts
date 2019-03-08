@@ -115,11 +115,7 @@ export const store = {
 
     tournamentPostOutput() {
         return objectWithoutNulls( {
-            flow: '0',
-            curstagepos: '0',
-            page_selector: '1',
-            submit_page_go: 'Go',
-            tour_name: this.tournament.name,
+            tour_name: this.tournament.name.trim(),
             tour_descr: this.tournament.description,
             online: this.tournament.online ? 'on' : null,
             offlinet: this.tournament.offline ? 'on' : null,
@@ -152,10 +148,6 @@ export const store = {
 
     carsPhysicsPostOutput() {
         return objectWithoutNulls( {
-            flow: '1',
-            curstagepos: '0',
-            page_selector: '2',
-            submit_page_go: 'Go',
             LicSel: [ '0' ], // TODO: License selection
             ModsSel: [ this.cars_physics.track_physics_id, ...this.cars_physics.selected_car_ids ]
         } )
@@ -168,10 +160,6 @@ export const store = {
     trackPostOutput( index: number ) {
         const track = this.tracks[index]
         return objectWithoutNulls( {
-            flow: '2',
-            curstagepos: ( index + 1 ).toString(),
-            page_selector: '2',
-            submit_page_go: 'Go',
             renamestage: track.name ? 'on' : null,
             stage_rename: track.name,
             CarSel: this.cars_physics.selected_car_ids[0],

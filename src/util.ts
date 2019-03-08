@@ -58,3 +58,29 @@ export function extractSelectOptions( node: HTMLElement | null ): SelectOption[]
 
     return options
 }
+
+export function urlEncode( obj: any ) {
+    return Object.keys( obj ).map( key => `${encodeURIComponent( key )}=${encodeURIComponent( obj[key] )}` ).join( '&' )
+}
+
+export function post( data: any, next_page: {
+    flow?: string,
+    curstagepos?: string,
+    page_selector?: string
+} = {} ) {
+    const { flow = '0', curstagepos = '0', page_selector = '0' } = next_page
+
+    return fetch( '/index.php?act=tourmntscre4A', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: urlEncode( {
+            ...data,
+            flow,
+            curstagepos,
+            page_selector,
+            submit_page_go: 'Go'
+        } )
+    } )
+}

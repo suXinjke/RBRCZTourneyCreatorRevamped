@@ -32,20 +32,16 @@ export default tsx.componentFactory.create( {
         },
 
         track_physics_select: function() {
-            if ( !this.car_physics_select ) {
-                return undefined
-            }
-
-            return cars.trackPhysics[this.cars_physics.car_physics_id]
+            return cars.trackPhysics[this.cars_physics.car_physics_id] || []
         },
 
         car_packs_select: function() {
             if ( !this.car_physics_select ) {
-                return undefined
+                return []
             }
 
             if ( !cars.carPacks[this.cars_physics.car_physics_id] ) {
-                return undefined
+                return []
             }
 
             const carPack = cars.carPacks[this.cars_physics.car_physics_id]
@@ -131,30 +127,30 @@ export default tsx.componentFactory.create( {
 
                     <div>
                         Track physics
-                    { this.track_physics_select ?
                         <select v-model={ this.cars_physics.track_physics_id }>
-                            <option disabled value=''>Select track physics</option>
+                            <option disabled value=''>{
+                                cars.fetching[this.cars_physics.car_physics_id] ? 'Loading...' :
+                                !this.cars_physics.car_physics_id ? 'Select car physics first' :
+                                'Select track physics'
+                            }</option>
                         { this.track_physics_select.map( option =>
                             <option key={ option.id } value={ option.id }>{ option.label }</option>
                         ) }
                         </select>
-                    :
-                        <div>Loading...</div>
-                    }
                     </div>
 
                     <div>
                         Car pack
-                    { this.car_packs_select ?
                         <select v-model={ this.car_pack }>
-                            <option disabled value=''>Select car pack</option>
+                            <option disabled value=''>{
+                                cars.fetching[this.cars_physics.car_physics_id] ? 'Loading...' :
+                                !this.cars_physics.car_physics_id ? 'Select car physics first' :
+                                'Select car pack'
+                            }</option>
                         { this.car_packs_select.map( option =>
                             <option key={ option.id } value={ option.id }>{ option.label }</option>
                         ) }
                         </select>
-                    :
-                        <div>Loading...</div>
-                    }
                     </div>
 
                     <div>
