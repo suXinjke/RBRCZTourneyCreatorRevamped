@@ -199,8 +199,8 @@ export default Vue.extend( {
                     <tr>
                         <td class='nav-buttons'>
                             <button onClick={ () => { this.current_page = Page.Tournament } } class={{ active: this.current_page === Page.Tournament, error: this.hasErrors( this.tournament_errors ) }}>Tournament</button>
-                            <button onClick={ () => { this.current_page = Page.Cars } } class={{ active: this.current_page === Page.Cars, error: this.hasErrors( this.cars_errors ) }}>Cars / Physics</button>
-                            <button onClick={ () => { this.current_page = Page.TrackList } } class={{ active: this.current_page === Page.TrackList, error: this.hasErrors( this.tracks_errors ) }} style='margin-bottom: 8px'>Tracks</button>
+                            <button onClick={ () => { this.current_page = Page.Cars } } disabled={ !constants.fetched } class={{ active: this.current_page === Page.Cars, error: this.hasErrors( this.cars_errors ) }}>Cars / Physics</button>
+                            <button onClick={ () => { this.current_page = Page.TrackList } } disabled={ tracks.fetching } class={{ active: this.current_page === Page.TrackList, error: this.hasErrors( this.tracks_errors ) }} style='margin-bottom: 8px'>Tracks</button>
 
                             { this.store.tracks.map( ( track, index ) => (
                                 <button key={`track${index}`} onClick={ () => { this.current_page = Page.Track; this.track_index = index } }
