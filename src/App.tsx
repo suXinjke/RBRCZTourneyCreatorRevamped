@@ -203,7 +203,7 @@ export default Vue.extend( {
                             <button onClick={ () => { this.current_page = Page.TrackList } } disabled={ tracks.fetching } class={{ active: this.current_page === Page.TrackList, error: this.hasErrors( this.tracks_errors ) }} style='margin-bottom: 8px'>Tracks</button>
 
                             { this.store.tracks.map( ( track, index ) => (
-                                <button key={`track${index}`} onClick={ () => { this.current_page = Page.Track; this.track_index = index } }
+                                <button key={`track${index}`} disabled={ this.tracks_settings.fetching[track.id] } onClick={ () => { this.current_page = Page.Track; this.track_index = index } }
                                     class={{ active: this.current_page === Page.Track && this.track_index === index }}
                                 >
                                     SS { index + 1 } - { this.tracks_data[track.id].name } { track.name ? `(${track.name})` : '' }

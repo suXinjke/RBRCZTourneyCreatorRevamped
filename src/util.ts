@@ -84,3 +84,12 @@ export function post( data: any, next_page: {
         } )
     } )
 }
+
+export function waitUntil( func: () => boolean, checkInMsecs: number = 300 ) {
+    return new Promise( res => {
+        const intervalFunc = () => {
+            func() ? res() : setInterval( intervalFunc, checkInMsecs )
+        }
+        intervalFunc()
+    } )
+}
