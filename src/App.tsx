@@ -206,7 +206,7 @@ export default Vue.extend( {
                                 <button key={`track${index}`} onClick={ () => { this.current_page = Page.Track; this.track_index = index } }
                                     class={{ active: this.current_page === Page.Track && this.track_index === index }}
                                 >
-                                    SS { index + 1 } - { this.tracks_data[track.id].name } { track.name || '' }
+                                    SS { index + 1 } - { this.tracks_data[track.id].name } { track.name ? `(${track.name})` : '' }
                                 </button>
                             ) ) }
 
