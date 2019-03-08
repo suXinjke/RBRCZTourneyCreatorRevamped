@@ -2,6 +2,10 @@ export function formatDate( date: Date ) {
     return `${( '000' + date.getFullYear() ).slice( -4 )}-${( '0' + ( date.getMonth() + 1 ) ).slice( -2 )}-${( '0' + date.getDate() ).slice( -2 )}`
 }
 
+export function stringDateToCZDate( date: string ) {
+    return date.split( '-' ).reverse().map( number_string => Number( number_string ).toString() ).join( '.' )
+}
+
 export function formatTime( date: Date ) {
     return `${( '0' + date.getHours() ).slice( -2 )}:${( '0' + date.getMinutes() ).slice( -2 )}`
 }

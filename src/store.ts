@@ -5,7 +5,7 @@ const nextHalfAnHour = new Date( Number( now ) + 1000 * 60 * 30 )
 const nextThreeDays = new Date( Number( now ) + 1000 * 60 * 60 * 24 * 3 )
 
 import { tracks as tracks_data } from './data/tracks'
-import { formatDate, formatTime, arrayMoveElement, objectWithoutNulls } from './util'
+import { formatDate, formatTime, arrayMoveElement, objectWithoutNulls, stringDateToCZDate } from './util'
 
 export const store = {
     tournament: {
@@ -120,9 +120,9 @@ export const store = {
             online: this.tournament.online ? 'on' : null,
             offlinet: this.tournament.offline ? 'on' : null,
             PhysicsModId: this.cars_physics.car_physics_id,
-            tour_from_date: this.tournament.from_date.split( '-' ).reverse().map( number_string => Number( number_string ).toString() ).join( '.' ),
+            tour_from_date: stringDateToCZDate( this.tournament.from_date ),
             tour_from_time: this.tournament.from_time,
-            tour_to_date: this.tournament.to_date.split( '-' ).reverse().map( number_string => Number( number_string ).toString() ).join( '.' ),
+            tour_to_date: stringDateToCZDate( this.tournament.to_date ),
             tour_to_time: this.tournament.to_time,
             cantresrace: this.tournament.cant_resume ? 'on' : null,
             onecaronly: this.tournament.only_one_car ? 'on' : null,
@@ -157,8 +157,8 @@ export const store = {
         // TODO
     },
 
-    trackPostOutput( index: number ) {
-        const track = this.tracks[index]
+    trackPostOutput( track_index: number ) {
+        const track = this.tracks[track_index]
         return objectWithoutNulls( {
             renamestage: track.name ? 'on' : null,
             stage_rename: track.name,
@@ -179,7 +179,9 @@ export const store = {
             canchangedamage: track.damage_change_allowed ? 'on' : null,
             DamageSel: track.damage,
             CutcheckerSel: track.shortcut_check,
-            leg_pos: 'TODO', // TODO: calculate the leg position
+            leg_pos: this.legs.length === 0 ? null : this.legs.reduce( ( prev, leg, leg_index ) => {
+                return track_index > leg.after_stage_divider ? leg_index + 1 : prev
+            }, 0 ),
             allowsuperally: track.superally ? 'on' : null,
             superallychpoint: track.superally_hold ? 'on' : null,
             canrepeatstage: track.retry_allowed ? 'on' : null,
@@ -191,9 +193,43 @@ export const store = {
         // TODO
     },
 
-    legsPostOutput() {
-        // TODO
-        return {
+    legsPostOutput(): any {
+        if ( this.legs.length === 0 ) {
+            return {}
         }
+
+        return this.legs.map( ( leg, leg_index ) => {
+            return {
+                index: leg_index,
+
+                date_from: stringDateToCZDate( leg_index === 0 ? this.tournament.from_date : this.legs[leg_index - 1].date ),
+                time_from: leg_index === 0 ? this.tournament.from_time : this.legs[leg_index - 1].time,
+
+                date_to: stringDateToCZDate( leg.date ),
+                time_to: leg.time
+            }
+        } ).concat( {
+            index: this.legs.length,
+            date_from: stringDateToCZDate( this.legs[this.legs.length - 1].date ),
+            time_from: this.legs[this.legs.length - 1].time,
+
+            date_to: stringDateToCZDate( this.tournament.to_date ),
+            time_to: this.tournament.to_time
+        } ).reduce( ( prev, leg, index ) => {
+            const fields: any = {
+            }
+            if ( index > 0 ) {
+                fields[`leg${index}_date_from`] = leg.date_from
+                fields[`leg${index}_time_from`] = leg.time_from
+            }
+            if ( index < this.legs.length - 1 ) {
+                fields[`leg${index}_date_to`] = leg.date_to
+                fields[`leg${index}_time_to`] = leg.time_to
+            }
+            return {
+                ...prev,
+                ...fields
+            }
+        }, {} )
     }
 }
