@@ -64,7 +64,13 @@ export function extractSelectOptions( node: HTMLElement | null ): SelectOption[]
 }
 
 export function urlEncode( obj: any ) {
-    return Object.keys( obj ).map( key => `${encodeURIComponent( key )}=${encodeURIComponent( obj[key] )}` ).join( '&' )
+    return Object.keys( obj ).map( key => {
+        if ( Array.isArray( obj[key] ) ) {
+            return ( obj[key] as any[] ).map( val => `${encodeURIComponent( `${key}[]` )}=${encodeURIComponent( val )}` ).join( '&' )
+        } else {
+            return `${encodeURIComponent( key )}=${encodeURIComponent( obj[key] )}`
+        }
+    } ).join( '&' )
 }
 
 export function post( data: any, next_page: {
