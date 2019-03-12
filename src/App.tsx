@@ -10,6 +10,7 @@ import { tracks } from './data/tracks'
 import { constants } from './data/constants'
 import { trackSettings } from './data/track-settings'
 import { cars } from './data/cars'
+import { post, urlEncode, getElementByXpath } from './util'
 import './app.scss'
 
 enum Page {
@@ -33,7 +34,9 @@ export default Vue.extend( {
 
             store,
 
-            hidden: ''
+            hidden: '',
+
+            serverErrors: [] as Array<{ page: string, error: string}>
         }
     },
 
@@ -144,6 +147,60 @@ export default Vue.extend( {
     methods: {
         hasErrors: function( errors: any ) {
             return Object.values( errors ).find( value => Boolean( value ) === true )
+        },
+
+        submit: async function() {
+            this.serverErrors = []
+
+            const generalErrorXPath = '/html/body/table/tbody/tr/td/table[3]/tbody/tr[1]/td[2]/span'
+            const trackErrorXPath = '/html/body/table/tbody/tr/td/table[3]/tbody/tr[1]/td[2]/center/span'
+
+            let res: Response
+
+            const tournament_data = this.store.tournamentPostOutput()
+            res = await post( tournament_data, { flow: '0' } )
+            this.checkAndAppendServerErrors( { page: 'Tournament', errorsXPath: generalErrorXPath, res } )
+
+            const cars_physics_data = this.store.carsPhysicsPostOutput()
+            res = await post( cars_physics_data, { flow: '1' } )
+            this.checkAndAppendServerErrors( { page: 'Cars / Physics', errorsXPath: generalErrorXPath, res } )
+
+            for ( let i = 0 ; i < this.store.tracks.length ; i++ ) {
+                const track_data = this.store.trackPostOutput( i )
+                res = await post( track_data, { flow: '2', curstagepos: i.toString() } )
+                this.checkAndAppendServerErrors( { page: `SS ${i + 1}`, errorsXPath: trackErrorXPath, res } )
+            }
+
+            if ( this.store.legs.length > 0 ) {
+                const leg_data = this.store.legsPostOutput()
+                res = await post( leg_data, { flow: '3', page_selector: '0' } )
+                this.checkAndAppendServerErrors( { page: 'Legs', errorsXPath: generalErrorXPath, res } )
+            }
+        },
+
+        checkAndAppendServerErrors: async function( params: { res: Response, errorsXPath: string, page: string } ) {
+            const { res, errorsXPath, page } = params
+            const doc = ( new DOMParser() ).parseFromString( await res.text(), 'text/html' )
+
+            const errors = getElementByXpath( doc, errorsXPath )
+            if ( errors ) {
+                let error = ''
+                for ( const errorNode of errors.childNodes ) {
+                    if ( errorNode.nodeName === 'br' ) {
+                        if ( error ) {
+                            this.serverErrors.push( { page, error } )
+                        }
+                        error = ''
+                        continue
+                    }
+
+                    error += errorNode.textContent
+                }
+
+                if ( error ) {
+                    this.serverErrors.push( { page, error } )
+                }
+            }
         }
     },
 
@@ -197,7 +254,7 @@ export default Vue.extend( {
                 </div>
                 <table style={ this.hidden ? 'display: none;' : ''}><tbody>
                     <tr>
-                        <td class='nav-buttons'>
+                        <td class='nav-buttons' style='width: 25%;'>
                             <button onClick={ () => { this.current_page = Page.Tournament } } class={{ active: this.current_page === Page.Tournament, error: this.hasErrors( this.tournament_errors ) }}>Tournament</button>
                             <button onClick={ () => { this.current_page = Page.Cars } } disabled={ !constants.fetched } class={{ active: this.current_page === Page.Cars, error: this.hasErrors( this.cars_errors ) }}>Cars / Physics</button>
                             <button onClick={ () => { this.current_page = Page.TrackList } } disabled={ tracks.fetching } class={{ active: this.current_page === Page.TrackList, error: this.hasErrors( this.tracks_errors ) }} style='margin-bottom: 8px'>Tracks</button>
@@ -213,9 +270,19 @@ export default Vue.extend( {
                             <button onClick={ () => { this.current_page = Page.ScheduleLegs } } class={{ active: this.current_page === Page.ScheduleLegs, error: this.hasErrors( this.legs_errors ) }} style='margin-top: 8px'>Schedule and legs</button>
                             <button onClick={ () => { this.current_page = Page.Presets } } class={{ active: this.current_page === Page.Presets }}>JSON info</button>
 
-                            <button disabled={ true } style='margin-top: 8px'>
-                                { this.hasErrors( { ...this.tournament_errors, ...this.cars_errors, ...this.tracks_errors, ...this.legs_errors } ) ? ( <div>Can't send data due to errors</div> ) : ( <div>This button would send the data</div> ) }
-                            </button>
+                        { this.hasErrors( { ...this.tournament_errors, ...this.cars_errors, ...this.tracks_errors, ...this.legs_errors } ) ?
+                            <button disabled={ true } style='margin-top: 8px'>Can't send data due to errors</button>
+                            :
+                            <button style='margin-top: 8px' onClick={ () => this.submit() }>Fake send</button>
+                        }
+                        { this.serverErrors.length > 0 &&
+                            <div style='margin-top: 8px'>
+                                Failed to create tournament
+                            { this.serverErrors.map( ( error, index ) =>
+                                <div key={`serverError${index}`} class='error'>{ error.page }: { error.error }</div>
+                            ) }
+                            </div>
+                        }
                         </td>
                         <td style='vertical-align: top;'>
                         { this.current_page === Page.Tournament && <Tournament errors={ this.tournament_errors }/> }
