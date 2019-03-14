@@ -208,8 +208,8 @@ export default Vue.extend( {
 
     watch: {
         'store.tracks': function( newTracks: TrackData[] ) {
-            newTracks.forEach( ( track, index ) => {
-                this.tracks_settings.fetchTrackSettings( track.id, index )
+            newTracks.forEach( track => {
+                this.tracks_settings.fetchTrackSettings( track.id )
                 this.tracks_weather.fetchTrackWeather( track.id )
             } )
 

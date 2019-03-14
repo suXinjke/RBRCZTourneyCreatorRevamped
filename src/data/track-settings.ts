@@ -16,7 +16,7 @@ export const trackSettings = Vue.observable( {
         return Object.values( this.fetching ).filter( value => value === true ).length >= 2
     },
 
-    async fetchTrackSettings( track_id: string, track_index: number ) {
+    async fetchTrackSettings( track_id: string ) {
         if ( this.fetching[track_id] || this.byId[track_id] ) {
             return
         }
@@ -34,12 +34,14 @@ export const trackSettings = Vue.observable( {
 
         dummy_post.tour_to_date = stringDateToCZDate( formatDate( nextThreeDays ) )
         dummy_post.tour_to_time = '23:59'
+
+        dummy_post.tourstages = `${track_id};`
         if ( !dummy_post.PhysicsModId ) {
             dummy_post.PhysicsModId = constants.carPhysics[0].id
         }
 
         const response = await post( dummy_post, {
-            page_selector: ( 2 + track_index ).toString()
+            page_selector: '2'
         } )
 
         const html = await response.text()
