@@ -5,6 +5,8 @@ const nextHalfAnHour = new Date( Number( now ) + 1000 * 60 * 30 )
 const nextThreeDays = new Date( Number( now ) + 1000 * 60 * 60 * 24 * 3 )
 
 import { tracks as tracks_data } from './data/tracks'
+import { trackSettings } from './data/track-settings'
+import { trackWeather } from './data/track-weather'
 import { formatDate, formatTime, arrayMoveElement, objectWithoutNulls, stringDateToCZDate } from './util'
 
 export const store = {
@@ -45,45 +47,66 @@ export const store = {
 
     legs: [] as Leg[],
 
+    trackFetchInfo( track_id: string ) {
+        return Promise.all( [
+            trackSettings.fetchTrackSettings( track_id ),
+            trackWeather.fetchTrackWeather( track_id )
+        ] )
+    },
 
-    trackAdd( track_ids: string[] ) {
-        const lastTrack = this.tracks[this.tracks.length - 1]
+    async trackAdd( track_ids: string[] ) {
+        const previousTrack = this.tracks[this.tracks.length - 1]
 
-        track_ids.forEach( track_id => {
+        for ( const track_id of track_ids ) {
             const track = tracks_data.byId[track_id] as TrackData
             if ( !track ) {
-                return
+                continue
             }
+
+            await this.trackFetchInfo( track_id )
+
+            const settings = trackSettings.byId[track_id]
+            const weatherSettings = trackWeather.byId[track_id]
 
             store.tracks.push( {
                 id: track_id,
                 name: '',
-                surface_type: '0',
-                surface_age: '0',
+                surface_type: previousTrack && settings.surface_type.find( surface => surface.id === previousTrack.surface_type ) ?
+                    previousTrack.surface_type :
+                    settings.surface_type[0].id,
 
-                weather: '0',
-                weather2: '0',
-                weather_change_allowed: false,
-                time_of_day: '0',
-                clouds: '0',
+                surface_age: previousTrack && settings.surface_age.find( surface => surface.id === previousTrack.surface_age ) ?
+                    previousTrack.surface_age :
+                    settings.surface_age[0].id,
+
+                weather: previousTrack ? previousTrack.weather : settings.weather[0].id,
+                weather_change_allowed: previousTrack ? previousTrack.weather_change_allowed : false,
+
+                weather2: weatherSettings[0].weather2.id,
+                time_of_day: weatherSettings[0].time_of_day.id,
+                clouds: weatherSettings[0].clouds.id,
 
                 service_time_mins: 0,
-                setup_change_allowed: lastTrack ? lastTrack.setup_change_allowed : true,
+                setup_change_allowed: false,
                 tyre_replacement_allowed: false,
-                tyre_change_allowed: lastTrack ? lastTrack.tyre_change_allowed : true,
-                tyres: '0',
+                tyre_change_allowed: previousTrack ? false : true,
+                tyres: settings.tyres[0].id,
 
-                damage_change_allowed: false,
-                damage: '0',
+                damage_change_allowed: previousTrack ? previousTrack.damage_change_allowed : false,
+                damage: previousTrack && settings.damage.find( damage => damage.id === previousTrack.damage ) ?
+                    previousTrack.damage :
+                    settings.damage[settings.damage.length - 1].id,
 
-                shortcut_check: '0',
+                shortcut_check: previousTrack && settings.shortcut_check.find( shortcut_check => shortcut_check.id === previousTrack.shortcut_check ) ?
+                    previousTrack.shortcut_check :
+                    settings.shortcut_check[0].id,
 
-                superally: lastTrack ? lastTrack.superally : false,
-                superally_hold: false,
+                superally: previousTrack ? previousTrack.superally : false,
+                superally_hold: previousTrack ? previousTrack.superally_hold : false,
 
-                retry_allowed: lastTrack ? lastTrack.retry_allowed : false
+                retry_allowed: previousTrack ? previousTrack.retry_allowed : false
             } )
-        } )
+        }
     },
 
     trackRemove( track_index: number ) {

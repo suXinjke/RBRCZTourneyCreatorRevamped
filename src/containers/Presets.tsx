@@ -27,6 +27,9 @@ export default tsx.componentFactory.create( {
             }
 
             Object.assign( this.store, JSON.parse( data ) )
+            this.store.tracks.forEach( track => {
+                this.store.trackFetchInfo( track.id )
+            } )
         },
     },
 

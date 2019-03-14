@@ -17,7 +17,11 @@ export const trackSettings = Vue.observable( {
     },
 
     async fetchTrackSettings( track_id: string ) {
-        if ( this.fetching[track_id] || this.byId[track_id] ) {
+        if ( this.fetching[track_id] ) {
+            await waitUntil( () => this.fetching[track_id] === false )
+        }
+
+        if ( this.byId[track_id] ) {
             return
         }
 
@@ -58,16 +62,6 @@ export const trackSettings = Vue.observable( {
             damage: extractSelectOptions( getElementByXpath( doc, '//*[@id="DamageSel"]' ) ),
             shortcut_check: extractSelectOptions( getElementByXpath( doc, '//*[@id="CutcheckerSel"]' ) )
         }
-
-        store.tracks[track_index].surface_type = settings.surface_type[0].id
-        store.tracks[track_index].surface_age = settings.surface_age[0].id
-        store.tracks[track_index].weather = settings.weather[0].id
-        store.tracks[track_index].weather2 = settings.weather2[0].id
-        store.tracks[track_index].clouds = settings.clouds[0].id
-        store.tracks[track_index].time_of_day = settings.time_of_day[0].id
-        store.tracks[track_index].tyres = settings.tyres[0].id
-        store.tracks[track_index].damage = settings.damage[0].id
-        store.tracks[track_index].shortcut_check = settings.shortcut_check[0].id
 
         Vue.set( this.byId, track_id, settings )
 

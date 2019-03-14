@@ -11,7 +11,11 @@ export const trackWeather = Vue.observable( {
     },
 
     async fetchTrackWeather( track_id: string ) {
-        if ( this.fetching[ track_id ] || this.byId[ track_id ] ) {
+        if ( this.fetching[track_id] ) {
+            await waitUntil( () => this.fetching[track_id] === false )
+        }
+
+        if ( this.byId[ track_id ] ) {
             return
         }
 

@@ -143,6 +143,15 @@ export default Vue.extend( {
                     [leg.after_stage_divider]: error
                 }
             }, {} )
+        },
+
+        notifications: function() {
+            return [
+                ...Object.keys( this.tracks_settings.fetching )
+                    .map( key => this.tracks_settings.fetching[key] ? `Fetching settings for ${tracks.byId[key].name}` : '' ),
+                ...Object.keys( this.tracks_weather.fetching )
+                    .map( key => this.tracks_settings.fetching[key] ? `Fetching weather info for ${tracks.byId[key].name}` : '' ),
+            ].filter( notification => notification.length > 0 )
         }
     },
 
@@ -208,10 +217,6 @@ export default Vue.extend( {
 
     watch: {
         'store.tracks': function( newTracks: TrackData[] ) {
-            newTracks.forEach( track => {
-                this.tracks_settings.fetchTrackSettings( track.id )
-                this.tracks_weather.fetchTrackWeather( track.id )
-            } )
 
             if ( newTracks.length < 2 ) {
                 store.legs.splice( 0, store.legs.length )
@@ -263,7 +268,7 @@ export default Vue.extend( {
                             <button onClick={ () => { this.current_page = Page.TrackList } } disabled={ tracks.fetching } class={{ active: this.current_page === Page.TrackList, error: this.hasErrors( this.tracks_errors ) }} style='margin-bottom: 8px'>Tracks</button>
 
                             { this.store.tracks.map( ( track, index ) => (
-                                <button key={`track${index}`} disabled={ this.tracks_settings.fetching[track.id] } onClick={ () => { this.current_page = Page.Track; this.track_index = index } }
+                                <button key={`track${index}`} disabled={ !this.tracks_settings.byId[track.id] || !this.tracks_weather.byId[track.id] } onClick={ () => { this.current_page = Page.Track; this.track_index = index } }
                                     class={{ active: this.current_page === Page.Track && this.track_index === index }}
                                 >
                                     SS { index + 1 } - { this.tracks_data[track.id].name } { track.name ? `(${track.name})` : '' }
@@ -286,6 +291,11 @@ export default Vue.extend( {
                             ) }
                             </div>
                         }
+                        <div style='margin-top: 8px'>
+                        { this.notifications.map( ( notification, index ) =>
+                            <div key={`notification${index}`}>{ notification }</div>
+                        ) }
+                        </div>
                         </td>
                         <td style='vertical-align: top;'>
                         { this.current_page === Page.Tournament && <Tournament errors={ this.tournament_errors }/> }
