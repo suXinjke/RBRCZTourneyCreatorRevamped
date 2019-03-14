@@ -110,7 +110,7 @@ export default tsx.componentFactory.create( {
             <table><tbody><tr>
                 <td>
                     Countries
-                    <select v-model={ this.selected_countries } multiple style='height: 400px; min-width: 140px'>
+                    <select v-model={ this.selected_countries } multiple style='height: 400px;'>
                         <option value=''>All countries</option>
                     { this.available_countries.map( country =>
                         <option value={ country } key={ country }>{ country }</option>
@@ -119,8 +119,8 @@ export default tsx.componentFactory.create( {
                 </td>
                 <td>
                     Tracks
-                    <input v-model={ this.available_tracks_filter } placeholder='Search...'/>
-                    <select v-model={ this.available_tracks_selected_ids } multiple style='height: 376px; min-width: 140px'>
+                    <input style='width: 100%;' v-model={ this.available_tracks_filter } placeholder='Search...'/>
+                    <select v-model={ this.available_tracks_selected_ids } multiple style='height: 376px; width: 200px'>
                     { this.available_tracks_select.map( option =>
                         <option value={ option.id } key={ option.id } onDblclick={ this.addSelected }>{ option.value.name }</option>
                     ) }
@@ -139,7 +139,7 @@ export default tsx.componentFactory.create( {
                 </td>
                 <td>
                     Selected tracks
-                    <select v-model={ this.tracks_selected_indexes } multiple style='min-width: 200px; height: 400px' onDblclick={ this.removeSelected }>
+                    <select v-model={ this.tracks_selected_indexes } multiple style='height: 400px; width: 200px' onDblclick={ this.removeSelected }>
                     { this.errors.selected_tracks &&
                         <option class='error'>{ this.errors.selected_tracks }</option>
                     }

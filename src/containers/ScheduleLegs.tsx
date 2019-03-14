@@ -118,82 +118,66 @@ export default tsx.componentFactory.create( {
         return (
             <div>
                 <table>
-                    <thead>
-                        <tr>
-                            <td></td>
-                            <td>Name</td>
-                            <td>Weather</td>
-                            <td>Tyres</td>
-                            <td>Damage</td>
-                            <td>Surface type</td>
-                            <td>Surface age</td>
-                            <td>Service</td>
-                            <td>Tyre change</td>
-                            <td>Setup change</td>
-                            <td>Superally</td>
-                            <td>Superally hold</td>
-                            <td></td>
-                        </tr>
-                    </thead>
                     <tbody>
                     { this.tracks.map( ( track, index ) => ( [ (
                         <tr key={ index }>
-                            <td>SS { index + 1 }</td>
-                            <td>
-                                <input v-model={ track.name } placeholder={ this.tracks_data[track.id].name } style='width: 94%;'/>
+                            <td style='vertical-align: top; min-width: 40px;'>
+                                SS { index + 1 }
                             </td>
-                            <td>
-                                <WeatherSelect track={ track }/>
+                            <td style='vertical-align: top;'>
+                                <div>
+                                    <input v-model={ track.name } placeholder={ this.tracks_data[track.id].name }/>
+                                    <WeatherSelect track={ track }/>
+                                    <DamageSelect track={ track }/>
+                                </div>
+                                <div>
+                                    <TyreSelect track={ track }/>
+                                    <SurfaceTypeSelect track={ track }/>
+                                    <SurfaceAgeSelect track={ track }/>
+                                    <ServiceSelect track={ track }/>
+                                </div>
+                                <div>
+                                    <input id={`tcbox${index}`}  type='checkbox' v-model={ track.tyre_change_allowed }/>    <label for={`tcbox${index}`} >Tyre change</label>
+                                    <input id={`scbox${index}`}  type='checkbox' v-model={ track.setup_change_allowed }/>   <label for={`scbox${index}`} >Setup change</label>
+                                    <input id={`srbox${index}`}  type='checkbox' v-model={ track.superally }/>              <label for={`srbox${index}`} >Superally</label>
+                                    <input id={`srhbox${index}`} type='checkbox' v-model={ track.superally_hold }/>         <label for={`srhbox${index}`}>Superally hold</label>
+                                </div>
                             </td>
-                            <td>
-                                <TyreSelect track={ track }/>
-                            </td>
-                            <td>
-                                <DamageSelect track={ track }/>
-                            </td>
-                            <td>
-                                <SurfaceTypeSelect track={ track }/>
-                            </td>
-                            <td>
-                                <SurfaceAgeSelect track={ track }/>
-                            </td>
-                            <td>
-                                <ServiceSelect track={ track }/>
-                            </td>
-                            <td style='text-align: center' ><input type='checkbox' v-model={ track.tyre_change_allowed }/></td>
-                            <td style='text-align: center' ><input type='checkbox' v-model={ track.setup_change_allowed }/></td>
-                            <td style='text-align: center' ><input type='checkbox' v-model={ track.superally }/></td>
-                            <td style='text-align: center' ><input type='checkbox' v-model={ track.superally_hold }/></td>
-                            <td>
+                            <td style='width: 50px;'>
                                 <button
+                                    title='Move track up'
+                                    style='width: 100%;'
                                     disabled={ this.arrayCanMoveElement( this.tracks, index, -1 ) === false }
                                     onClick={ () => store.trackMoveUp( index ) }
                                 >
                                     ^
                                 </button>
                                 <button
+                                    title='Move track down'
+                                    style='width: 100%;'
                                     disabled={ arrayCanMoveElement( this.tracks, index, +1 ) === false }
                                     onClick={ () => store.trackMoveDown( index ) }
                                 >
                                     v
                                 </button>
-                                <button onClick={ () => store.trackRemove( index ) }>X</button>
+                                <button title='Remove track' style='width: 100%;' onClick={ () => store.trackRemove( index ) }>X</button>
                             </td>
                         </tr> ),
                     track.service_time_mins > 0 && (
                         <tr>
-                            <td colspan={ 13 } class='table-highlight'>Service area ({ track.service_time_mins } min.) / <input type='checkbox' v-model={ track.tyre_replacement_allowed }/> Tyre replacement</td>
+                            <th colspan={ 3 }>Service area ({ track.service_time_mins } min.) / <input type='checkbox' v-model={ track.tyre_replacement_allowed }/> Tyre replacement</th>
                         </tr>
                     ),
                     track.superally_hold && (
                         <tr>
-                            <td colspan={ 13 } class='table-highlight'>Superally</td>
+                            <th colspan={ 3 }>Superally</th>
                         </tr>
                     ),
                     this.legs.map( ( leg, leg_index ) => index !== leg.after_stage_divider ? null : (
                         <tr key={ `${index} ${leg}leg` }>
-                            <td colspan={ 13 } class='table-highlight' style='text-align: center'>
+                            <th colspan={ 3 } style='text-align: center' class='leg_revamped'>
                                 <button
+                                    title='Move leg up'
                                     onClick={ () => this.moveLegUp( leg.after_stage_divider ) }
                                     disabled={ this.canMoveLegUp( leg.after_stage_divider ) === false }
                                 >
@@ -202,16 +186,17 @@ export default tsx.componentFactory.create( {
                                 Leg { leg_index + 1 }
                                 <input type='date' v-model={ leg.date }/>
                                 <input type='time' v-model={ leg.time }/>
-                                <button onClick={ () => this.removeLeg( leg.after_stage_divider ) }>Remove</button>
+                                <button title='Remove leg' onClick={ () => this.removeLeg( leg.after_stage_divider ) }>Remove</button>
                                 Leg { leg_index + 2 }
                                 <button
+                                    title='Move leg down'
                                     onClick={ () => this.moveLegDown( leg.after_stage_divider ) }
                                     disabled={ this.canMoveLegDown( leg.after_stage_divider ) === false }
                                 >
                                     vvv
                                 </button>
-                                <div class='error'>{ this.errors[leg.after_stage_divider] }</div>
-                            </td>
+                                <div>{ this.errors[leg.after_stage_divider] }</div>
+                            </th>
                         </tr>
                     ) )
                     ] ) ) }

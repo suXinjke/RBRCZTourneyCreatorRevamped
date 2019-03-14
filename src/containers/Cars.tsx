@@ -114,7 +114,7 @@ export default tsx.componentFactory.create( {
                     <div>
                         Car physics
                     { this.car_physics_select ?
-                        <select v-model={ this.cars_physics.car_physics_id }>
+                        <select style='width: 100%;' v-model={ this.cars_physics.car_physics_id }>
                             <option disabled value=''>Select car physics</option>
                         { this.car_physics_select.map( option =>
                             <option key={ option.id } value={ option.id }>{ option.label }</option>
@@ -127,7 +127,7 @@ export default tsx.componentFactory.create( {
 
                     <div>
                         Track physics
-                        <select v-model={ this.cars_physics.track_physics_id }>
+                        <select style='width: 100%;' v-model={ this.cars_physics.track_physics_id }>
                             <option disabled value=''>{
                                 cars.fetching[this.cars_physics.car_physics_id] ? 'Loading...' :
                                 !this.cars_physics.car_physics_id ? 'Select car physics first' :
@@ -141,7 +141,7 @@ export default tsx.componentFactory.create( {
 
                     <div>
                         Car pack
-                        <select v-model={ this.car_pack }>
+                        <select style='width: 100%;' v-model={ this.car_pack }>
                             <option disabled value=''>{
                                 cars.fetching[this.cars_physics.car_physics_id] ? 'Loading...' :
                                 !this.cars_physics.car_physics_id ? 'Select car physics first' :
@@ -154,7 +154,7 @@ export default tsx.componentFactory.create( {
                     </div>
 
                     <div>
-                        <select v-model={ this.available_cars_selected_ids } multiple style='min-width: 200px; height: 400px;'>
+                        <select v-model={ this.available_cars_selected_ids } multiple style='width: 100%; min-width: 200px; height: 400px;'>
                         { this.car_pack ? this.available_cars.map( option =>
                             <option key={ option.id } title={ option.value } value={ option.id } onDblclick={ this.addSelected }>{ option.value }</option>
                         ) : (
@@ -173,7 +173,7 @@ export default tsx.componentFactory.create( {
 
                 <td>
                     Selected cars
-                    <select v-model={ this.selected_cars_selected_ids } multiple style='min-width: 200px; height: 500px;'>
+                    <select v-model={ this.selected_cars_selected_ids } multiple style='width: 100%; min-width: 200px; height: 500px;'>
                     { this.errors.selected_cars &&
                         <option class='error'>{ this.errors.selected_cars }</option>
                     }
