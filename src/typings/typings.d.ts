@@ -17,7 +17,9 @@ declare global {
         time_of_day: SelectOption[],
         tyres: SelectOption[],
         damage: SelectOption[],
-        shortcut_check: SelectOption[]
+        shortcut_check: SelectOption[],
+
+        tyres_recommended: string
     }
 
     interface SelectedTrack {

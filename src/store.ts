@@ -90,7 +90,7 @@ export const store = {
                 setup_change_allowed: false,
                 tyre_replacement_allowed: false,
                 tyre_change_allowed: previousTrack ? false : true,
-                tyres: settings.tyres[0].id,
+                tyres: settings.tyres_recommended,
 
                 damage_change_allowed: previousTrack ? previousTrack.damage_change_allowed : false,
                 damage: previousTrack && settings.damage.find( damage => damage.id === previousTrack.damage ) ?
