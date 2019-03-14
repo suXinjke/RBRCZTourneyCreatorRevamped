@@ -60,6 +60,13 @@ declare global {
         restricted: boolean
     }
 
+    interface TrackWeatherData {
+        time_of_day: SelectOption,
+        weather2: SelectOption,
+        clouds: SelectOption,
+        remark: string
+    }
+
     interface Leg {
         after_stage_divider: number,
 

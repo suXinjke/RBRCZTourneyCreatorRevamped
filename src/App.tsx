@@ -9,6 +9,7 @@ import { store } from './store'
 import { tracks } from './data/tracks'
 import { constants } from './data/constants'
 import { trackSettings } from './data/track-settings'
+import { trackWeather } from './data/track-weather'
 import { cars } from './data/cars'
 import { post, urlEncode, getElementByXpath } from './util'
 import './app.scss'
@@ -31,6 +32,7 @@ export default Vue.extend( {
 
             tracks_data: tracks.byId,
             tracks_settings: trackSettings,
+            tracks_weather: trackWeather,
 
             store,
 
@@ -208,6 +210,7 @@ export default Vue.extend( {
         'store.tracks': function( newTracks: TrackData[] ) {
             newTracks.forEach( ( track, index ) => {
                 this.tracks_settings.fetchTrackSettings( track.id, index )
+                this.tracks_weather.fetchTrackWeather( track.id )
             } )
 
             if ( newTracks.length < 2 ) {

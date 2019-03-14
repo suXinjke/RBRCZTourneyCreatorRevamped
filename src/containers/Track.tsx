@@ -10,6 +10,7 @@ import DamageSelect from '../components/DamageSelect'
 import TyreSelect from '../components/TyreSelect'
 import TimeOfDaySelect from '../components/TimeOfDaySelect'
 import ShortcutSelect from '../components/ShortcutSelect'
+import TrackWeatherSelect from '../components/TrackWeatherSelect'
 import { tracks } from '../data/tracks'
 import { trackSettings } from '../data/track-settings'
 import { cars } from '../data/cars'
@@ -88,7 +89,7 @@ export default tsx.componentFactory.create( {
                     </td>
                 </tr>
 
-                <tr>
+                {/* <tr>
                     <td>Time of day</td>
                     <td>
                         <TimeOfDaySelect track={ this.track }/>
@@ -106,6 +107,13 @@ export default tsx.componentFactory.create( {
                     <td>Clouds</td>
                     <td>
                         <CloudsSelect track={ this.track }/>
+                    </td>
+                </tr> */}
+
+                <tr>
+                    <td>Weather 2</td>
+                    <td>
+                        <TrackWeatherSelect track={ this.track }/>
                     </td>
                 </tr>
 
