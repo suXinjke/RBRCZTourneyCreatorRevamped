@@ -1,7 +1,11 @@
 import Vue from 'vue'
 import { store } from '../store'
 import { constants } from '../data/constants'
-import { post, extractSelectOptions, getElementByXpath, waitUntil } from '../util'
+import { post, extractSelectOptions, getElementByXpath, waitUntil, formatDate, stringDateToCZDate } from '../util'
+
+const now = new Date()
+const nextDay = new Date( Number( now ) + 1000 * 60 * 60 * 24 * 1 )
+const nextThreeDays = new Date( Number( now ) + 1000 * 60 * 60 * 24 * 3 )
 
 export const trackSettings = Vue.observable( {
     byId: {} as { [index: string]: TrackSettings },
@@ -25,6 +29,11 @@ export const trackSettings = Vue.observable( {
 
         const dummy_post = store.tournamentPostOutput()
         dummy_post.tour_name = 'dummy'
+        dummy_post.tour_from_date = stringDateToCZDate( formatDate( nextDay ) )
+        dummy_post.tour_from_time = '00:00'
+
+        dummy_post.tour_to_date = stringDateToCZDate( formatDate( nextThreeDays ) )
+        dummy_post.tour_to_time = '23:59'
         if ( !dummy_post.PhysicsModId ) {
             dummy_post.PhysicsModId = constants.carPhysics[0].id
         }
