@@ -6,7 +6,7 @@ export default tsx.componentFactory.create( {
     name: 'TrackList',
     data: function() {
         return {
-            selected_countries: [ '' ] as string[],
+            selected_track_groups: [ '' ] as string[],
 
             available_tracks_filter: '',
             available_tracks_selected_ids: [] as string[],
@@ -25,11 +25,21 @@ export default tsx.componentFactory.create( {
     },
 
     computed: {
-        available_countries: function() {
-            return Object.keys( this.tracks_data ).reduce( ( countries, key ) => {
+        available_track_groups: function() {
+            const country_array = Object.keys( this.tracks_data ).reduce( ( countries, key ) => {
                 const { country } = this.tracks_data[key]
                 return countries.includes( country ) ? countries : countries.concat( country )
             }, [] as string[] ).sort( ( a, b ) => a > b ? 1 : -1 )
+            const surface_array = [
+                'Gravel',
+                'Tarmac',
+                'Snow'
+            ]
+
+            return [
+                ...surface_array,
+                ...country_array
+            ]
         },
 
         available_tracks_select: function() {
@@ -39,8 +49,9 @@ export default tsx.componentFactory.create( {
             } ) )
             .sort( ( a, b ) => a.value.name > b.value.name ? 1 : -1 )
             .filter( option =>
-                this.selected_countries.includes( '' ) ||
-                this.selected_countries.includes( option.value.country )
+                this.selected_track_groups.includes( '' ) ||
+                this.selected_track_groups.includes( option.value.country ) ||
+                this.selected_track_groups.includes( option.value.surface )
             )
             .filter( option => this.available_tracks_filter === '' || option.value.name.toLowerCase().indexOf( this.available_tracks_filter.toLowerCase() ) !== -1 )
         },
@@ -109,11 +120,11 @@ export default tsx.componentFactory.create( {
         return (
             <table><tbody><tr>
                 <td>
-                    <div>Countries</div>
-                    <select v-model={ this.selected_countries } multiple style='height: 400px;'>
-                        <option value=''>All countries</option>
-                    { this.available_countries.map( country =>
-                        <option value={ country } key={ country }>{ country }</option>
+                    <div>Track groups</div>
+                    <select v-model={ this.selected_track_groups } multiple style='height: 400px;'>
+                        <option value=''>All tracks</option>
+                    { this.available_track_groups.map( group =>
+                        <option value={ group } key={ group }>{ group }</option>
                     ) }
                     </select>
                 </td>
