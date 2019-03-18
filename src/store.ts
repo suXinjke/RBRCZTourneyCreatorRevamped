@@ -158,7 +158,7 @@ export const store = {
     tournamentDummyPostOutput( additionalParams: Partial<TournamentPOSTOutput> = {} ): Partial<TournamentPOSTOutput> {
         const { nextDay, nextThreeDays } = datePacks()
 
-        return {
+        return objectWithoutNulls( {
             ...this.tournamentPostOutput(),
             tour_name: 'dummy',
             tour_from_date: stringDateToCZDate( formatDate( nextDay ) ),
@@ -168,8 +168,10 @@ export const store = {
             tour_to_time: '23:59',
             PhysicsModId: constants.carPhysics[0].id,
 
+            has_legs: null,
+
             ...additionalParams
-        }
+        } )
     },
 
     carsPhysicsFromHTML( html: string ) {
