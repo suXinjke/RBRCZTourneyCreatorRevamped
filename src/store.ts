@@ -255,7 +255,7 @@ export const store = {
                 fields[`leg${index}_date_from`] = leg.date_from
                 fields[`leg${index}_time_from`] = leg.time_from
             }
-            if ( index < this.legs.length - 1 ) {
+            if ( index <= this.legs.length - 1 ) {
                 fields[`leg${index}_date_to`] = leg.date_to
                 fields[`leg${index}_time_to`] = leg.time_to
             }
