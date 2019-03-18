@@ -38,7 +38,7 @@ export default tsx.componentFactory.create( {
 
                 <tr>
                     <td><label for='tournament.description'>Tournament description</label></td>
-                    <td><textarea id='tournament.description' v-model={ this.tournament.description }/></td>
+                    <td><textarea id='tournament.description' v-model={ this.tournament.description } style='background-color: #050505;'/></td>
                 </tr>
 
                 <tr>

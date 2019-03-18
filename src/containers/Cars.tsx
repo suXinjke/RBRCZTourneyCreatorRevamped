@@ -110,7 +110,7 @@ export default tsx.componentFactory.create( {
     render( h ) {
         return (
             <table><tbody><tr>
-                <td>
+                <td style='vertical-align: top;'>
                     <div>
                         Car physics
                     { this.car_physics_select ?
@@ -172,7 +172,7 @@ export default tsx.componentFactory.create( {
                 </td>
 
                 <td>
-                    Selected cars
+                    <div>Selected cars</div>
                     <select v-model={ this.selected_cars_selected_ids } multiple style='width: 100%; min-width: 200px; height: 500px;'>
                     { this.errors.selected_cars &&
                         <option class='error'>{ this.errors.selected_cars }</option>

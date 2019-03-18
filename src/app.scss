@@ -9,10 +9,13 @@ pre {
 .nav-buttons {
     vertical-align: top;
 
+    div, button {
+        width: 200px;
+    }
+
     button {
         display: block;
         text-align: left;
-        width: 200px;
 
         &.active {
             font-weight: bold;
@@ -46,4 +49,17 @@ input[type="checkbox"], input[type="radio"], input[type="date"], input[type="tim
 
 .error {
     color: rgb(230, 0, 0);
+}
+
+.schedule-legs-inputs {
+    div {
+        display: flex;
+
+        select {
+            margin: auto;
+            &:first-child {
+                flex: 1;
+            }
+        }
+    }
 }

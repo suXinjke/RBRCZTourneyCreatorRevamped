@@ -124,7 +124,7 @@ export default tsx.componentFactory.create( {
                             <td style='vertical-align: top; min-width: 40px;'>
                                 SS { index + 1 }
                             </td>
-                            <td style='vertical-align: top;'>
+                            <td class='schedule-legs-inputs' style='vertical-align: top;'>
                                 <div>
                                     <input v-model={ track.name } placeholder={ this.tracks_data[track.id].name }/>
                                     <WeatherSelect track={ track }/>
