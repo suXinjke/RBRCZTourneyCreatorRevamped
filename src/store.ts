@@ -108,13 +108,6 @@ export const store = {
 
     trackRemove( track_index: number ) {
         store.tracks.splice( track_index, 1 )
-
-        if ( store.tracks.length === 0 ) {
-            return
-        }
-
-        store.tracks[store.tracks.length - 1].service_time_mins = 0
-        store.tracks[store.tracks.length - 1].tyre_replacement_allowed = false
     },
 
     trackMove( track_index: number, offset: number ) {

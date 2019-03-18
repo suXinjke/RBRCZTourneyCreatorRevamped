@@ -216,7 +216,12 @@ export default Vue.extend( {
     },
 
     watch: {
-        'store.tracks': function( newTracks: TrackData[] ) {
+        'store.tracks': function( newTracks: SelectedTrack[] ) {
+            if ( newTracks.length > 0 ) {
+                const lastTrack = newTracks[newTracks.length - 1]
+                lastTrack.service_time_mins = 0
+                lastTrack.tyre_replacement_allowed = false
+            }
 
             if ( newTracks.length < 2 ) {
                 store.legs.splice( 0, store.legs.length )
