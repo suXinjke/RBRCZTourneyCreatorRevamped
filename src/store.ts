@@ -189,6 +189,7 @@ export const store = {
 
     trackPostOutput( track_index: number ) {
         const track = this.tracks[track_index]
+        const isLast = track_index === this.tracks.length - 1
         return objectWithoutNulls( {
             renamestage: track.name ? 'on' : null,
             stage_rename: track.name,
@@ -202,7 +203,7 @@ export const store = {
             TimeOfDaySel: track.time_of_day,
             Weather2Sel: track.weather2,
             CloudsSel: track.clouds,
-            ServiceSel: track.service_time_mins.toString(),
+            ServiceSel: isLast ? null : track.service_time_mins.toString(),
             canrenewtyres: track.tyre_replacement_allowed ? 'on' : null,
             canchangetyres: track.tyre_change_allowed ? 'on' : null,
             TyresSel: track.tyres,
