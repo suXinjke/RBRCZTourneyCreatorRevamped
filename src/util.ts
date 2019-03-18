@@ -103,3 +103,17 @@ export function waitUntil( func: () => boolean, checkInMsecs: number = 300 ) {
         intervalFunc()
     } )
 }
+
+export function datePacks() {
+    const now = new Date()
+    const nextHalfAnHour = new Date( Number( now ) + 1000 * 60 * 30 )
+    const nextDay = new Date( Number( now ) + 1000 * 60 * 60 * 24 * 1 )
+    const nextThreeDays = new Date( Number( now ) + 1000 * 60 * 60 * 24 * 3 )
+
+    return {
+        now,
+        nextHalfAnHour,
+        nextDay,
+        nextThreeDays
+    }
+}

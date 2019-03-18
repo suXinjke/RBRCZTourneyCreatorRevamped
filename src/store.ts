@@ -1,13 +1,10 @@
-
-
-const now = new Date()
-const nextHalfAnHour = new Date( Number( now ) + 1000 * 60 * 30 )
-const nextThreeDays = new Date( Number( now ) + 1000 * 60 * 60 * 24 * 3 )
-
 import { tracks as tracks_data } from './data/tracks'
 import { trackSettings } from './data/track-settings'
 import { trackWeather } from './data/track-weather'
-import { formatDate, formatTime, arrayMoveElement, objectWithoutNulls, stringDateToCZDate } from './util'
+import { formatDate, formatTime, datePacks, arrayMoveElement, objectWithoutNulls, stringDateToCZDate } from './util'
+import { constants } from './data/constants'
+
+const storeDatePack = datePacks()
 
 export const store = {
     tournament: {
@@ -16,10 +13,10 @@ export const store = {
         online: true,
         offline: false,
 
-        from_date: formatDate( nextHalfAnHour ),
-        from_time: formatTime( nextHalfAnHour ),
+        from_date: formatDate( storeDatePack.nextHalfAnHour ),
+        from_time: formatTime( storeDatePack.nextHalfAnHour ),
 
-        to_date: formatDate( nextThreeDays ),
+        to_date: formatDate( storeDatePack.nextThreeDays ),
         to_time: '23:59',
 
         cant_resume: false,
@@ -136,7 +133,7 @@ export const store = {
         // TODO
     },
 
-    tournamentPostOutput() {
+    tournamentPostOutput(): Partial<TournamentPOSTOutput> {
         return objectWithoutNulls( {
             tour_name: this.tournament.name.trim(),
             tour_descr: this.tournament.description,
@@ -163,6 +160,23 @@ export const store = {
             SRallyPenaltySel: this.tournament.superally_penalty.toString(),
             tourstages: this.tracks.map( track => track.id ).join( ';' ) + ';'
         } )
+    },
+
+    tournamentDummyPostOutput( additionalParams: Partial<TournamentPOSTOutput> = {} ): Partial<TournamentPOSTOutput> {
+        const { nextDay, nextThreeDays } = datePacks()
+
+        return {
+            ...this.tournamentPostOutput(),
+            tour_name: 'dummy',
+            tour_from_date: stringDateToCZDate( formatDate( nextDay ) ),
+            tour_from_time: '00:00',
+
+            tour_to_date: stringDateToCZDate( formatDate( nextThreeDays ) ),
+            tour_to_time: '23:59',
+            PhysicsModId: constants.carPhysics[0].id,
+
+            ...additionalParams
+        }
     },
 
     carsPhysicsFromHTML( html: string ) {

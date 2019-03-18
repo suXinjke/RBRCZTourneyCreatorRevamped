@@ -20,10 +20,10 @@ export const cars = Vue.observable( {
 
         Vue.set( this.carPacks, car_physics_id, {} )
 
-        const dummy_post = store.tournamentPostOutput()
-        dummy_post.tour_name = 'dummy'
-        dummy_post.PhysicsModId = car_physics_id
-        dummy_post.tourstages = '10;'
+        const dummy_post = store.tournamentDummyPostOutput( {
+            PhysicsModId: car_physics_id,
+            tourstages: '10;'
+        } )
 
         const response = await post( dummy_post, {
             page_selector: '1'

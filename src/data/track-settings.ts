@@ -3,10 +3,6 @@ import { store } from '../store'
 import { constants } from '../data/constants'
 import { post, extractSelectOptions, getElementByXpath, waitUntil, formatDate, stringDateToCZDate } from '../util'
 
-const now = new Date()
-const nextDay = new Date( Number( now ) + 1000 * 60 * 60 * 24 * 1 )
-const nextThreeDays = new Date( Number( now ) + 1000 * 60 * 60 * 24 * 3 )
-
 export const trackSettings = Vue.observable( {
     byId: {} as { [index: string]: TrackSettings },
 
@@ -31,18 +27,9 @@ export const trackSettings = Vue.observable( {
 
         Vue.set( this.fetching, track_id, true )
 
-        const dummy_post = store.tournamentPostOutput()
-        dummy_post.tour_name = 'dummy'
-        dummy_post.tour_from_date = stringDateToCZDate( formatDate( nextDay ) )
-        dummy_post.tour_from_time = '00:00'
-
-        dummy_post.tour_to_date = stringDateToCZDate( formatDate( nextThreeDays ) )
-        dummy_post.tour_to_time = '23:59'
-
-        dummy_post.tourstages = `${track_id};`
-        if ( !dummy_post.PhysicsModId ) {
-            dummy_post.PhysicsModId = constants.carPhysics[0].id
-        }
+        const dummy_post = store.tournamentDummyPostOutput( {
+            tourstages: `${track_id};`
+        } )
 
         const response = await post( dummy_post, {
             page_selector: '2'

@@ -75,4 +75,31 @@ declare global {
         date: string,
         time: string
     }
+
+    interface TournamentPOSTOutput {
+        tour_name: string,
+        tour_descr: string,
+        online: string | null,
+        offlinet: string | null,
+        PhysicsModId: string,
+        tour_from_date: string,
+        tour_from_time: string,
+        tour_to_date: string,
+        tour_to_time: string,
+        cantresrace: string | null,
+        onecaronly: string | null,
+        nosplits: string | null,
+        notempres: string | null,
+        notempresweb: string | null,
+        savereplays: string | null,
+        getcomments: string | null,
+        testrun: string | null,
+        ispassword: string | null,
+        tour_password: string | null,
+        has_legs: string | null,
+        need_enroll: string | null,
+        enroll_close: string | null,
+        SRallyPenaltySel: string,
+        tourstages: string
+    }
 }
