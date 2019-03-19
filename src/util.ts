@@ -76,9 +76,12 @@ export function urlEncode( obj: any ) {
 export function post( data: any, next_page: {
     flow?: string,
     curstagepos?: string,
-    page_selector?: string
+    page_selector?: string,
+    save_tournament?: boolean
 } = {} ) {
-    const { flow = '0', curstagepos = '0', page_selector = '0' } = next_page
+    const { flow = '0', curstagepos = '0', page_selector = '0', save_tournament = false } = next_page
+
+    const save_params = save_tournament ? { submit_save_tour: 'Save tour' } : { submit_page_go: 'Go' }
 
     return fetch( '/index.php?act=tourmntscre4A', {
         method: 'POST',
@@ -90,7 +93,7 @@ export function post( data: any, next_page: {
             flow,
             curstagepos,
             page_selector,
-            submit_page_go: 'Go'
+            ...save_params
         } )
     } )
 }

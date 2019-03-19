@@ -187,6 +187,22 @@ export default Vue.extend( {
                 res = await post( leg_data, { flow: '3', page_selector: '0' } )
                 this.checkAndAppendServerErrors( { page: 'Legs', errorsXPath: generalErrorXPath, res } )
             }
+
+            if ( this.serverErrors.length === 0 ) {
+                res = await post( tournament_data, { save_tournament: true } )
+                const html = await res.text()
+                const doc = ( new DOMParser() ).parseFromString( html, 'text/html' )
+
+                const edit_tournament_node = getElementByXpath( doc, '/html/body/table/tbody/tr/td/table[3]/tbody/tr[1]/td[2]/center[3]/a' )
+                if ( edit_tournament_node ) {
+                    const href = edit_tournament_node.getAttribute( 'href' ) || ''
+                    const tournament_id_match = href.match( /torid=([^&]+)/ )
+                    if ( tournament_id_match ) {
+                        const tournament_id = tournament_id_match[1]
+                        window.location.replace( `index.php?act=tourmntsview&torid=${tournament_id}` )
+                    }
+                }
+            }
         },
 
         checkAndAppendServerErrors: async function( params: { res: Response, errorsXPath: string, page: string } ) {
@@ -286,7 +302,7 @@ export default Vue.extend( {
                         { this.hasErrors( { ...this.tournament_errors, ...this.cars_errors, ...this.tracks_errors, ...this.legs_errors } ) ?
                             <button disabled={ true } style='margin-top: 8px'>Can't send data due to errors</button>
                             :
-                            <button style='margin-top: 8px' onClick={ () => this.submit() }>Fake send</button>
+                            <button style='margin-top: 8px' onClick={ () => this.submit() }>Save tournament</button>
                         }
                         { this.serverErrors.length > 0 &&
                             <div style='margin-top: 8px'>
