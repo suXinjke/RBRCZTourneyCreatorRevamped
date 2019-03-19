@@ -38,6 +38,8 @@ export default Vue.extend( {
 
             hidden: '',
 
+            current_request_operation: '',
+
             serverErrors: [] as Array<{ page: string, error: string}>
         }
     },
@@ -169,48 +171,58 @@ export default Vue.extend( {
 
             let res: Response
 
-            const tournament_data = this.store.tournamentPostOutput()
-            res = await post( tournament_data, { flow: '0' } )
-            this.checkAndAppendServerErrors( { page: 'Tournament', errorsXPath: generalErrorXPath, res } )
+            try {
+                const tournament_data = this.store.tournamentPostOutput()
+                this.current_request_operation = `Sending tournament info`
+                res = await post( tournament_data, { flow: '0' } )
+                this.checkAndAppendServerErrors( { page: 'Tournament', errorsXPath: generalErrorXPath, res } )
 
-            const cars_physics_data = this.store.carsPhysicsPostOutput()
-            res = await post( cars_physics_data, { flow: '1' } )
-            this.checkAndAppendServerErrors( { page: 'Cars / Physics', errorsXPath: generalErrorXPath, res } )
+                const cars_physics_data = this.store.carsPhysicsPostOutput()
+                this.current_request_operation = `Sending Cars / Physics info`
+                res = await post( cars_physics_data, { flow: '1' } )
+                this.checkAndAppendServerErrors( { page: 'Cars / Physics', errorsXPath: generalErrorXPath, res } )
 
-            for ( let i = 0 ; i < this.store.tracks.length ; i++ ) {
-                const track_data = this.store.trackPostOutput( i )
+                for ( let i = 0 ; i < this.store.tracks.length ; i++ ) {
+                    const track_data = this.store.trackPostOutput( i )
 
-                res = await post( track_data, { flow: '2', curstagepos: i.toString() } )
-                this.checkAndAppendServerErrors( { page: `SS ${i + 1}`, errorsXPath: trackErrorXPath, res } )
-            }
+                    this.current_request_operation = `Sending SS ${i + 1 } info`
+                    res = await post( track_data, { flow: '2', curstagepos: i.toString() } )
+                    this.checkAndAppendServerErrors( { page: `SS ${i + 1}`, errorsXPath: trackErrorXPath, res } )
+                }
 
-            const leg_data = this.store.legsPostOutput()
-            if ( has_legs ) {
-                res = await post( leg_data, { flow: '3', page_selector: ( 2 + this.store.tracks.length ).toString() } )
-                this.checkAndAppendServerErrors( { page: 'Legs', errorsXPath: generalErrorXPath, res } )
-            }
+                const leg_data = this.store.legsPostOutput()
+                if ( has_legs ) {
+                    this.current_request_operation = `Sending legs info`
+                    res = await post( leg_data, { flow: '3', page_selector: ( 2 + this.store.tracks.length ).toString() } )
+                    this.checkAndAppendServerErrors( { page: 'Legs', errorsXPath: generalErrorXPath, res } )
+                }
 
-            if ( this.serverErrors.length === 0 ) {
+                if ( this.serverErrors.length === 0 ) {
+                    this.current_request_operation = `Submitting tournament`
 
-                // NOTE: apparently if you have legs - you should submit the tournament from the leg page
-                // Otherwise the main tournament settings page may redirect you to leg page instead of submitting
-                res = await post( has_legs ? leg_data : tournament_data, {
-                    flow: has_legs ? '3' : '0',
-                    save_tournament: true,
-                    save_from_leg_page: has_legs
-                } )
-                const html = await res.text()
-                const doc = ( new DOMParser() ).parseFromString( html, 'text/html' )
+                    // NOTE: apparently if you have legs - you should submit the tournament from the leg page
+                    // Otherwise the main tournament settings page may redirect you to leg page instead of submitting
+                    res = await post( has_legs ? leg_data : tournament_data, {
+                        flow: has_legs ? '3' : '0',
+                        save_tournament: true,
+                        save_from_leg_page: has_legs
+                    } )
+                    const html = await res.text()
+                    const doc = ( new DOMParser() ).parseFromString( html, 'text/html' )
 
-                const edit_tournament_node = getElementByXpath( doc, '/html/body/table/tbody/tr/td/table[3]/tbody/tr[1]/td[2]/center[3]/a' )
-                if ( edit_tournament_node ) {
-                    const href = edit_tournament_node.getAttribute( 'href' ) || ''
-                    const tournament_id_match = href.match( /torid=([^&]+)/ )
-                    if ( tournament_id_match ) {
-                        const tournament_id = tournament_id_match[1]
-                        window.location.replace( `index.php?act=tourmntsview&torid=${tournament_id}` )
+                    const edit_tournament_node = getElementByXpath( doc, '/html/body/table/tbody/tr/td/table[3]/tbody/tr[1]/td[2]/center[3]/a' )
+                    if ( edit_tournament_node ) {
+                        const href = edit_tournament_node.getAttribute( 'href' ) || ''
+                        const tournament_id_match = href.match( /torid=([^&]+)/ )
+                        if ( tournament_id_match ) {
+                            const tournament_id = tournament_id_match[1]
+                            window.location.replace( `index.php?act=tourmntsview&torid=${tournament_id}` )
+                        }
                     }
                 }
+            } catch ( err ) {
+                this.serverErrors = [ { page: 'Error', error: err.message } ]
+                this.current_request_operation = ''
             }
         },
 
@@ -274,46 +286,61 @@ export default Vue.extend( {
 
     mounted: async function() {
         constants.fetchTournamentConstants()
+
+        this.current_request_operation = 'Fetching track information'
         await tracks.fetchTracks()
 
         const url_search_params = new URLSearchParams( window.location.search )
         const tournament_id = url_search_params.get( 'torid' )
+
         if ( tournament_id ) {
-            const { track_ids, has_legs } = this.store.tournamentFromHTML( document.getElementsByTagName( 'html' )[0].innerHTML )
+            try {
+                const { track_ids, has_legs } = this.store.tournamentFromHTML( document.getElementsByTagName( 'html' )[0].innerHTML )
 
-            await waitUntil( () => cars.fetching[this.store.cars_physics.car_physics_id] === false )
+                this.current_request_operation = 'Fetching Cars / Physics'
+                await waitUntil( () => cars.fetching[this.store.cars_physics.car_physics_id] === false )
 
-            for ( const track_id of track_ids ) {
-                await store.trackFetchInfo( track_id )
-            }
-
-            await fetch( `/index.php?act=tourmntscre4A&new_tour=0&torid=${tournament_id}` )
-
-            let res: Response
-
-            const tournament_data: Partial<TournamentPOSTOutput> = objectWithoutNulls( {
-                ...this.store.tournamentPostOutput(),
-                has_legs: has_legs ? 'on' : null,
-                tourstages: track_ids.join( ';' ).concat( ';' )
-            } )
-            res = await post( tournament_data, { page_selector: '1' } )
-            this.store.carsPhysicsFromHTML( await res.text() )
-
-            for ( let i = 0 ; i < track_ids.length ; i++ ) {
-                const track_id = track_ids[i]
-
-                res = await post( tournament_data, { page_selector: ( 2 + i ).toString() } )
-                const track = this.store.trackFromHTML( track_id, trackSettings.byId[track_id], await res.text() )
-                if ( track ) {
-                    this.store.tracks.push( track )
+                this.current_request_operation = 'Fetching track information'
+                for ( const track_id of track_ids ) {
+                    await store.trackFetchInfo( track_id )
                 }
-            }
 
-            if ( has_legs ) {
-                res = await post( tournament_data, { page_selector: ( 2 + this.store.tracks.length ).toString() } )
-                this.store.legsFromHTML( await res.text() )
+                this.current_request_operation = 'Getting ready to fetch tournament info'
+                await fetch( `/index.php?act=tourmntscre4A&new_tour=0&torid=${tournament_id}` )
+
+                let res: Response
+
+                const tournament_data: Partial<TournamentPOSTOutput> = objectWithoutNulls( {
+                    ...this.store.tournamentPostOutput(),
+                    has_legs: has_legs ? 'on' : null,
+                    tourstages: track_ids.join( ';' ).concat( ';' )
+                } )
+                this.current_request_operation = `Fetching tournament's Cars / Physics`
+                res = await post( tournament_data, { page_selector: '1' } )
+                this.store.carsPhysicsFromHTML( await res.text() )
+
+                for ( let i = 0 ; i < track_ids.length ; i++ ) {
+                    const track_id = track_ids[i]
+
+                    this.current_request_operation = `Fetching SS ${i + 1}`
+                    res = await post( tournament_data, { page_selector: ( 2 + i ).toString() } )
+                    const track = this.store.trackFromHTML( track_id, trackSettings.byId[track_id], await res.text() )
+                    if ( track ) {
+                        this.store.tracks.push( track )
+                    }
+                }
+
+                if ( has_legs ) {
+                    this.current_request_operation = `Fetching legs info`
+                    res = await post( tournament_data, { page_selector: ( 2 + this.store.tracks.length ).toString() } )
+                    this.store.legsFromHTML( await res.text() )
+                }
+            } catch ( err ) {
+                this.serverErrors = [ { page: 'Error', error: err.message } ]
             }
         }
+
+        this.current_request_operation = ''
     },
 
     render: function( h ) {
@@ -344,7 +371,7 @@ export default Vue.extend( {
                         { this.hasErrors( { ...this.tournament_errors, ...this.cars_errors, ...this.tracks_errors, ...this.legs_errors } ) ?
                             <button disabled={ true } style='margin-top: 8px'>Can't send data due to errors</button>
                             :
-                            <button style='margin-top: 8px' onClick={ () => this.submit() }>Save tournament</button>
+                            <button disabled={ Boolean( this.current_request_operation ) } style='margin-top: 8px' onClick={ () => this.submit() }>Save tournament</button>
                         }
                         { this.serverErrors.length > 0 &&
                             <div style='margin-top: 8px'>
@@ -361,13 +388,15 @@ export default Vue.extend( {
                         </div>
                         </td>
                         <td style='vertical-align: top;'>
-                        { this.current_page === Page.Tournament && <Tournament errors={ this.tournament_errors }/> }
-                        { this.current_page === Page.Cars && <Cars errors={ this.cars_errors }/> }
-                        { this.current_page === Page.TrackList && <TrackList errors={ this.tracks_errors }/> }
-                        { this.current_page === Page.Track && <Track track={ this.store.tracks[this.track_index] } index={ this.track_index } /> }
-                        { this.current_page === Page.ScheduleLegs && <ScheduleLegs errors={ this.legs_errors }/> }
-
-                        { this.current_page === Page.Presets && <Presets /> }
+                        { this.current_request_operation ? <div>{ this.current_request_operation }</div> :
+                          this.current_page === Page.Tournament ? <Tournament errors={ this.tournament_errors }/> :
+                          this.current_page === Page.Cars ? <Cars errors={ this.cars_errors }/> :
+                          this.current_page === Page.TrackList ? <TrackList errors={ this.tracks_errors }/> :
+                          this.current_page === Page.Track ? <Track track={ this.store.tracks[this.track_index] } index={ this.track_index } /> :
+                          this.current_page === Page.ScheduleLegs ? <ScheduleLegs errors={ this.legs_errors }/> :
+                          this.current_page === Page.Presets ? <Presets /> :
+                          null
+                        }
                         </td>
                     </tr>
                 </tbody></table>
