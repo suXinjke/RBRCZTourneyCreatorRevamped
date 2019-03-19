@@ -11,7 +11,7 @@ import { constants } from './data/constants'
 import { trackSettings } from './data/track-settings'
 import { trackWeather } from './data/track-weather'
 import { cars } from './data/cars'
-import { post, urlEncode, getElementByXpath } from './util'
+import { post, urlEncode, getElementByXpath, waitUntil, objectWithoutNulls } from './util'
 import './app.scss'
 
 enum Page {
@@ -161,6 +161,7 @@ export default Vue.extend( {
         },
 
         submit: async function() {
+            const has_legs = this.store.legs.length > 0
             this.serverErrors = []
 
             const generalErrorXPath = '/html/body/table/tbody/tr/td/table[3]/tbody/tr[1]/td[2]/span'
@@ -178,18 +179,26 @@ export default Vue.extend( {
 
             for ( let i = 0 ; i < this.store.tracks.length ; i++ ) {
                 const track_data = this.store.trackPostOutput( i )
+
                 res = await post( track_data, { flow: '2', curstagepos: i.toString() } )
                 this.checkAndAppendServerErrors( { page: `SS ${i + 1}`, errorsXPath: trackErrorXPath, res } )
             }
 
-            if ( this.store.legs.length > 0 ) {
-                const leg_data = this.store.legsPostOutput()
-                res = await post( leg_data, { flow: '3', page_selector: '0' } )
+            const leg_data = this.store.legsPostOutput()
+            if ( has_legs ) {
+                res = await post( leg_data, { flow: '3', page_selector: ( 2 + this.store.tracks.length ).toString() } )
                 this.checkAndAppendServerErrors( { page: 'Legs', errorsXPath: generalErrorXPath, res } )
             }
 
             if ( this.serverErrors.length === 0 ) {
-                res = await post( tournament_data, { save_tournament: true } )
+
+                // NOTE: apparently if you have legs - you should submit the tournament from the leg page
+                // Otherwise the main tournament settings page may redirect you to leg page instead of submitting
+                res = await post( has_legs ? leg_data : tournament_data, {
+                    flow: has_legs ? '3' : '0',
+                    save_tournament: true,
+                    save_from_leg_page: has_legs
+                } )
                 const html = await res.text()
                 const doc = ( new DOMParser() ).parseFromString( html, 'text/html' )
 
@@ -233,12 +242,6 @@ export default Vue.extend( {
 
     watch: {
         'store.tracks': function( newTracks: SelectedTrack[] ) {
-            if ( newTracks.length > 0 ) {
-                const lastTrack = newTracks[newTracks.length - 1]
-                lastTrack.service_time_mins = 0
-                lastTrack.tyre_replacement_allowed = false
-            }
-
             if ( newTracks.length < 2 ) {
                 store.legs.splice( 0, store.legs.length )
                 return
@@ -269,9 +272,48 @@ export default Vue.extend( {
         }
     },
 
-    mounted: function() {
-        tracks.fetchTracks()
+    mounted: async function() {
         constants.fetchTournamentConstants()
+        await tracks.fetchTracks()
+
+        const url_search_params = new URLSearchParams( window.location.search )
+        const tournament_id = url_search_params.get( 'torid' )
+        if ( tournament_id ) {
+            const { track_ids, has_legs } = this.store.tournamentFromHTML( document.getElementsByTagName( 'html' )[0].innerHTML )
+
+            await waitUntil( () => cars.fetching[this.store.cars_physics.car_physics_id] === false )
+
+            for ( const track_id of track_ids ) {
+                await store.trackFetchInfo( track_id )
+            }
+
+            await fetch( `/index.php?act=tourmntscre4A&new_tour=0&torid=${tournament_id}` )
+
+            let res: Response
+
+            const tournament_data: Partial<TournamentPOSTOutput> = objectWithoutNulls( {
+                ...this.store.tournamentPostOutput(),
+                has_legs: has_legs ? 'on' : null,
+                tourstages: track_ids.join( ';' ).concat( ';' )
+            } )
+            res = await post( tournament_data, { page_selector: '1' } )
+            this.store.carsPhysicsFromHTML( await res.text() )
+
+            for ( let i = 0 ; i < track_ids.length ; i++ ) {
+                const track_id = track_ids[i]
+
+                res = await post( tournament_data, { page_selector: ( 2 + i ).toString() } )
+                const track = this.store.trackFromHTML( track_id, trackSettings.byId[track_id], await res.text() )
+                if ( track ) {
+                    this.store.tracks.push( track )
+                }
+            }
+
+            if ( has_legs ) {
+                res = await post( tournament_data, { page_selector: ( 2 + this.store.tracks.length ).toString() } )
+                this.store.legsFromHTML( await res.text() )
+            }
+        }
     },
 
     render: function( h ) {

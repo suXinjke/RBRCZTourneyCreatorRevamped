@@ -6,6 +6,10 @@ export function stringDateToCZDate( date: string ) {
     return date.split( '-' ).reverse().map( number_string => Number( number_string ).toString() ).join( '.' )
 }
 
+export function czDateToStringDate( date: string ) {
+    return date.split( '.' ).reverse().map( ( str, index ) => index === 0 ? str : str.padStart( 2, '0' ) ).join( '-' )
+}
+
 export function formatTime( date: Date ) {
     return `${( '0' + date.getHours() ).slice( -2 )}:${( '0' + date.getMinutes() ).slice( -2 )}`
 }
@@ -77,24 +81,27 @@ export function post( data: any, next_page: {
     flow?: string,
     curstagepos?: string,
     page_selector?: string,
-    save_tournament?: boolean
+    save_tournament?: boolean,
+    save_from_leg_page?: boolean
 } = {} ) {
-    const { flow = '0', curstagepos = '0', page_selector = '0', save_tournament = false } = next_page
+    const { flow = null, curstagepos = null, page_selector = null, save_tournament = false, save_from_leg_page = false } = next_page
 
-    const save_params = save_tournament ? { submit_save_tour: 'Save tour' } : { submit_page_go: 'Go' }
+    const save_params = save_tournament ?
+        ( save_from_leg_page ? { submit_page: 'Save' } : { submit_save_tour: 'Save tour' } ) :
+        { submit_page_go: 'Go' }
 
     return fetch( '/index.php?act=tourmntscre4A', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
-        body: urlEncode( {
+        body: urlEncode( objectWithoutNulls( {
             ...data,
             flow,
             curstagepos,
             page_selector,
             ...save_params
-        } )
+        } ) )
     } )
 }
 

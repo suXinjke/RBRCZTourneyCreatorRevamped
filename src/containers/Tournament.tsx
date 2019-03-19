@@ -4,15 +4,14 @@ import { constants } from '../data/constants'
 
 export default tsx.componentFactory.create( {
     name: 'Tournament',
-    data: function() {
-        return {
-            tournament: store.tournament
-        }
-    },
 
     computed: {
         superally: function() {
             return constants.fetched ? constants.superally : undefined
+        },
+
+        tournament: function() {
+            return store.tournament
         }
     },
 

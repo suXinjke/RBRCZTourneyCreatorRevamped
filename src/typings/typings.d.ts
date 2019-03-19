@@ -76,6 +76,33 @@ declare global {
         time: string
     }
 
+    interface Tournament {
+        name: string,
+        description: string,
+        online: boolean,
+        offline: boolean,
+
+        from_date: string,
+        from_time: string,
+
+        to_date: string,
+        to_time: string,
+
+        cant_resume: boolean,
+        only_one_car: boolean,
+        dont_show_splits: boolean,
+        dont_show_temporary_results_in_rbr: boolean,
+        dont_show_temporary_results_in_web: boolean,
+        save_replays: boolean,
+        require_stage_comments: boolean,
+        test_tournament: boolean,
+
+        password: string,
+        registration_deadline: string,
+
+        superally_penalty: number
+    }
+
     interface TournamentPOSTOutput {
         tour_name: string,
         tour_descr: string,

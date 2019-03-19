@@ -1,38 +1,41 @@
 import { tracks as tracks_data } from './data/tracks'
 import { trackSettings } from './data/track-settings'
 import { trackWeather } from './data/track-weather'
-import { formatDate, formatTime, datePacks, arrayMoveElement, objectWithoutNulls, stringDateToCZDate } from './util'
+import { formatDate, formatTime, datePacks, arrayMoveElement, objectWithoutNulls, stringDateToCZDate, getElementByXpath, czDateToStringDate } from './util'
 import { constants } from './data/constants'
+import { cars } from './data/cars'
 
 const storeDatePack = datePacks()
 
+const defaultTournament: Tournament = {
+    name: '',
+    description: '',
+    online: true,
+    offline: false,
+
+    from_date: formatDate( storeDatePack.nextHalfAnHour ),
+    from_time: formatTime( storeDatePack.nextHalfAnHour ),
+
+    to_date: formatDate( storeDatePack.nextThreeDays ),
+    to_time: '23:59',
+
+    cant_resume: false,
+    only_one_car: true,
+    dont_show_splits: false,
+    dont_show_temporary_results_in_rbr: false,
+    dont_show_temporary_results_in_web: false,
+    save_replays: true,
+    require_stage_comments: true,
+    test_tournament: false,
+
+    password: '',
+    registration_deadline: '',
+
+    superally_penalty: 300
+}
+
 export const store = {
-    tournament: {
-        name: '',
-        description: '',
-        online: true,
-        offline: false,
-
-        from_date: formatDate( storeDatePack.nextHalfAnHour ),
-        from_time: formatTime( storeDatePack.nextHalfAnHour ),
-
-        to_date: formatDate( storeDatePack.nextThreeDays ),
-        to_time: '23:59',
-
-        cant_resume: false,
-        only_one_car: true,
-        dont_show_splits: false,
-        dont_show_temporary_results_in_rbr: false,
-        dont_show_temporary_results_in_web: false,
-        save_replays: true,
-        require_stage_comments: true,
-        test_tournament: false,
-
-        password: '',
-        registration_deadline: '',
-
-        superally_penalty: 300
-    },
+    tournament: defaultTournament,
 
     cars_physics: {
         car_physics_id: '',
@@ -108,10 +111,13 @@ export const store = {
 
     trackRemove( track_index: number ) {
         store.tracks.splice( track_index, 1 )
+        store.trackFixIncorrectService()
     },
 
     trackMove( track_index: number, offset: number ) {
-        return arrayMoveElement( this.tracks, track_index, offset )
+        const moved_successfully = arrayMoveElement( this.tracks, track_index, offset )
+        store.trackFixIncorrectService()
+        return moved_successfully
     },
 
     trackMoveUp( track_index: number ) {
@@ -122,8 +128,53 @@ export const store = {
         return this.trackMove( track_index, +1 )
     },
 
-    tournamentFromHTML( html: string ) {
-        // TODO
+    tournamentFromHTML( html: string ): { track_ids: string[], has_legs: boolean } {
+        const doc = ( new DOMParser() ).parseFromString( html, 'text/html' )
+        const tournament_form = doc.getElementById( 'tournament' ) as HTMLFormElement | null
+        if ( tournament_form ) {
+            const form_data = new FormData( tournament_form )
+
+            const tour_to_date = form_data.get( 'tour_to_date' ) as string
+            const tour_from_date = form_data.get( 'tour_from_date' ) as string
+
+            const tournament: Tournament = {
+                name: ( form_data.get( 'tour_name' ) as string ) || this.tournament.name,
+                description: ( form_data.get( 'tour_descr' ) as string ) || this.tournament.description,
+                online: ( form_data.get( 'online' ) as string ) !== null,
+                offline: ( form_data.get( 'offlinet' ) as string ) !== null,
+
+                from_date: tour_from_date ? czDateToStringDate( tour_from_date ) : this.tournament.from_date,
+                from_time: ( form_data.get( 'tour_from_time' ) as string ) || this.tournament.from_time,
+                to_date: tour_to_date ? czDateToStringDate( tour_to_date ) : this.tournament.to_date,
+                to_time: ( form_data.get( 'tour_to_time' ) as string ) || this.tournament.to_time,
+
+                cant_resume: ( form_data.get( 'cantresrace' ) as string ) !== null,
+                only_one_car: ( form_data.get( 'onecaronly' ) as string ) !== null,
+                dont_show_splits: ( form_data.get( 'nosplits' ) as string ) !== null,
+                dont_show_temporary_results_in_rbr: ( form_data.get( 'notempres' ) as string ) !== null,
+                dont_show_temporary_results_in_web: ( form_data.get( 'notempresweb' ) as string ) !== null,
+                save_replays: ( form_data.get( 'savereplays' ) as string ) !== null,
+                require_stage_comments: ( form_data.get( 'getcomments' ) as string ) !== null,
+                test_tournament: ( form_data.get( 'testrun' ) as string ) !== null,
+
+                password: '',
+                registration_deadline: ( form_data.get( 'enroll_close' ) as string ) || this.tournament.registration_deadline,
+                superally_penalty: Number( ( form_data.get( 'SRallyPenaltySel' ) as string ) ) || this.tournament.superally_penalty,
+            }
+
+            this.tournament = tournament
+
+            // NOTE: This is exceptional situation, more related to 'cars physics page',
+            // but the info is still inside this page.
+            this.cars_physics.car_physics_id = ( form_data.get( 'PhysicsModId' ) as string ) || this.cars_physics.car_physics_id
+
+            return {
+                track_ids: ( form_data.get( 'tourstages' ) as string || '' ).split( ';' ).filter( id => id.length > 0 ),
+                has_legs: ( form_data.get( 'has_legs' ) as string ) !== null
+            }
+        }
+
+        return { track_ids: [], has_legs: false }
     },
 
     tournamentPostOutput(): Partial<TournamentPOSTOutput> {
@@ -175,7 +226,22 @@ export const store = {
     },
 
     carsPhysicsFromHTML( html: string ) {
-        // TODO
+        const doc = ( new DOMParser() ).parseFromString( html, 'text/html' )
+        const tournament_form = doc.getElementById( 'tournament' ) as HTMLFormElement | null
+        if ( tournament_form ) {
+            const form_data = new FormData( tournament_form )
+            const { car_physics_id } = this.cars_physics
+
+            const mods = form_data.getAll( 'ModsSel[]' )
+            for ( let mod_id of mods ) {
+                mod_id = mod_id.toString()
+                if ( cars.byId[mod_id] ) {
+                    this.cars_physics.selected_car_ids.push( mod_id )
+                } else if ( cars.trackPhysics[car_physics_id].find( option => mod_id === option.id ) ) {
+                    this.cars_physics.track_physics_id = mod_id
+                }
+            }
+        }
     },
 
     carsPhysicsPostOutput() {
@@ -185,8 +251,43 @@ export const store = {
         } )
     },
 
-    trackFromHTML( index: number, html: string ) {
-        // TODO
+    trackFromHTML( track_id: string, settings: TrackSettings, html: string ): SelectedTrack | null {
+        const doc = ( new DOMParser() ).parseFromString( html, 'text/html' )
+        const tournament_form = doc.getElementById( 'tournament' ) as HTMLFormElement | null
+        if ( tournament_form ) {
+            const form_data = new FormData( tournament_form )
+
+            return {
+                id: track_id,
+                name: ( form_data.get( 'stage_rename' ) as string ) || '',
+                surface_type: ( form_data.get( 'SurfSel' ) as string ) || settings.surface_type[0].id,
+                surface_age: ( form_data.get( 'SurfAgeSel' ) as string ) || settings.surface_age[0].id,
+
+                weather: ( form_data.get( 'WeatherSel' ) as string ) || settings.weather[0].id,
+                weather2: ( form_data.get( 'Weather2Sel' ) as string ) || settings.weather2[0].id,
+                weather_change_allowed: ( form_data.get( 'canchangeweather' ) as string ) !== null,
+                time_of_day: ( form_data.get( 'TimeOfDaySel' ) as string ) || settings.time_of_day[0].id,
+                clouds: ( form_data.get( 'CloudsSel' ) as string ) || settings.clouds[0].id,
+
+                service_time_mins: Number( ( form_data.get( 'ServiceSel' ) as string ) ) || 0,
+                setup_change_allowed: ( form_data.get( 'canchangesetup' ) as string ) !== null,
+                tyre_replacement_allowed: ( form_data.get( 'canrenewtyres' ) as string ) !== null,
+                tyre_change_allowed: ( form_data.get( 'canchangetyres' ) as string ) !== null,
+                tyres: ( form_data.get( 'TyresSel' ) as string ) || settings.tyres_recommended,
+
+                damage_change_allowed: ( form_data.get( 'canchangedamage' ) as string ) !== null,
+                damage: ( form_data.get( 'DamageSel' ) as string ) || settings.damage[settings.damage.length - 1].id,
+
+                shortcut_check: ( form_data.get( 'CutcheckerSel' ) as string ) || settings.shortcut_check[0].id,
+
+                superally: ( form_data.get( 'allowsuperally' ) as string ) !== null,
+                superally_hold: ( form_data.get( 'superallychpoint' ) as string ) !== null,
+
+                retry_allowed: ( form_data.get( 'canrepeatstage' ) as string ) !== null
+            }
+        }
+
+        return null
     },
 
     trackPostOutput( track_index: number ) {
@@ -222,8 +323,62 @@ export const store = {
         } )
     },
 
+    trackFixIncorrectService() {
+        if ( this.tracks.length > 0 ) {
+            const lastTrack = this.tracks[this.tracks.length - 1]
+            lastTrack.service_time_mins = 0
+            lastTrack.tyre_replacement_allowed = false
+        }
+    },
+
     legsFromHTML( html: string ) {
-        // TODO
+        const doc = ( new DOMParser() ).parseFromString( html, 'text/html' )
+
+        const table = getElementByXpath( doc, '/html/body/table/tbody/tr/td/table[3]/tbody/tr[1]/td[2]/form/table/tbody' )
+        const original_legs: Array<{
+            stages_to: number,
+            date_to: string,
+            time_to: string
+        }> = []
+        if ( table ) {
+            for ( const row of table.children ) {
+                const is_leg_row = !isNaN( Number( row.children[0].textContent || '' ) )
+                if ( !is_leg_row ) {
+                    continue
+                }
+
+                if ( row.children.length < 7 ) {
+                    continue
+                }
+
+                const stages_string = row.children[1].textContent || ''
+                const stages_matches = stages_string.match( /(\d+) - (\d+)/ )
+                if ( !stages_matches ) {
+                    continue
+                }
+
+                const stages_to = Number( stages_matches[2] )
+
+                const date_to = czDateToStringDate( row.children[5].children[0].getAttribute( 'value' ) || '' )
+                const time_to = row.children[6].children[0].getAttribute( 'value' ) || ''
+
+                original_legs.push( { stages_to, date_to, time_to } )
+            }
+        }
+
+        for ( let i = 0 ; i < original_legs.length ; i++ ) {
+            const is_last = i === original_legs.length - 1
+            if ( is_last ) {
+                continue
+            }
+
+            const leg = original_legs[i]
+            this.legs.push( {
+                after_stage_divider: leg.stages_to - 1,
+                date: leg.date_to,
+                time: leg.time_to
+            } )
+        }
     },
 
     legsPostOutput(): any {
