@@ -96,10 +96,6 @@ export default tsx.componentFactory.create( {
             this.addToSelected( [ random_track_id ] )
         },
 
-        addAll: function() {
-            this.addToSelected( this.available_tracks_select.map( option => option.id ) )
-        },
-
         removeSelected: function() {
             this.tracks_selected_indexes.sort( ( a, b ) => a > b ? -1 : 1 ).forEach( index => {
                 store.trackRemove( index )
@@ -144,7 +140,6 @@ export default tsx.componentFactory.create( {
 
                     <button onClick={ this.addSelected } style='text-align: left;'>Add selected ></button>
                     <button onClick={ this.addRandom } style='text-align: left;'>Add random ></button>
-                    <button onClick={ this.addAll } style='text-align: left;'>Add all >></button>
                     <button onClick={ this.removeSelected } style='text-align: right;'>&lt; Remove selected</button>
                     <button onClick={ this.removeAll } style='text-align: right;'>&lt;&lt; Remove all</button>
 
