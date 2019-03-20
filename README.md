@@ -1,9 +1,9 @@
 # RBR CZ Tournament Creator Revamped
 This repository contains source of Vue.js app that is aiming to make **Tournament creation** on [RBR CZ](https://rbr.onlineracing.cz/index.php?setlng=eng) much easier.
 
-This is merely a prototype, most of the car/track data has been scrapped and this doesn't actually create tournaments.
+**Comparison:** [Original](https://streamable.com/xz5o1) | [New](https://streamable.com/zp6dh)
 
-[**Try it out**](https://suxinjke.github.io/rbrcz_prototype/)
+[**Interactive demo**](https://suxinjke.github.io/rbrcz_prototype/) (old version)
 
 ### Improvements
 * Single page application instead of making requests to view/edit tournament data.
