@@ -128,7 +128,7 @@ export const store = {
         return this.trackMove( track_index, +1 )
     },
 
-    tournamentFromHTML( html: string ): { track_ids: string[], has_legs: boolean } {
+    tournamentFromHTML( html: string ): { track_ids: string[], cars_physics: string, has_legs: boolean } {
         const doc = ( new DOMParser() ).parseFromString( html, 'text/html' )
         const tournament_form = doc.getElementById( 'tournament' ) as HTMLFormElement | null
         if ( tournament_form ) {
@@ -164,17 +164,14 @@ export const store = {
 
             this.tournament = tournament
 
-            // NOTE: This is exceptional situation, more related to 'cars physics page',
-            // but the info is still inside this page.
-            this.cars_physics.car_physics_id = ( form_data.get( 'PhysicsModId' ) as string ) || this.cars_physics.car_physics_id
-
             return {
                 track_ids: ( form_data.get( 'tourstages' ) as string || '' ).split( ';' ).filter( id => id.length > 0 ),
+                cars_physics: ( form_data.get( 'PhysicsModId' ) as string ) || this.cars_physics.car_physics_id,
                 has_legs: ( form_data.get( 'has_legs' ) as string ) !== null
             }
         }
 
-        return { track_ids: [], has_legs: false }
+        return { track_ids: [], cars_physics: '0', has_legs: false }
     },
 
     tournamentPostOutput(): Partial<TournamentPOSTOutput> {

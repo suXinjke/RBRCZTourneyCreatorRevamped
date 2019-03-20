@@ -127,3 +127,25 @@ export function datePacks() {
         nextThreeDays
     }
 }
+
+export function cacheStore( key: string, value: string, age_secs: number ) {
+    window.localStorage.setItem( key, value )
+
+    const time_msecs = Number( new Date() )
+    window.localStorage.setItem( key + '_expires', ( time_msecs + age_secs * 1000 ).toString() )
+}
+
+export function cacheGet( key: string ) {
+    const item = window.localStorage.getItem( key )
+    if ( !item ) {
+        return null
+    }
+
+    const time_msecs = Number( new Date() )
+    const expiration_date = window.localStorage.getItem( key + '_expires' )
+    if ( !expiration_date || time_msecs >= Number( expiration_date ) ) {
+        return null
+    }
+
+    return item
+}

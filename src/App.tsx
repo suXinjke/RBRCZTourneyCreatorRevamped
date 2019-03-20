@@ -295,10 +295,11 @@ export default Vue.extend( {
 
         if ( tournament_id ) {
             try {
-                const { track_ids, has_legs } = this.store.tournamentFromHTML( document.getElementsByTagName( 'html' )[0].innerHTML )
+                const { track_ids, cars_physics: car_physics_id, has_legs } = this.store.tournamentFromHTML( document.getElementsByTagName( 'html' )[0].innerHTML )
 
                 this.current_request_operation = 'Fetching Cars / Physics'
-                await waitUntil( () => cars.fetching[this.store.cars_physics.car_physics_id] === false )
+                await cars.fetchCars( car_physics_id )
+                this.store.cars_physics.car_physics_id = car_physics_id
 
                 this.current_request_operation = 'Fetching track information'
                 for ( const track_id of track_ids ) {

@@ -1,8 +1,10 @@
 import Vue from 'vue'
 import { store } from '../store'
-import { post, extractSelectOptions, getElementByXpath } from '../util'
+import { post, extractSelectOptions, getElementByXpath, cacheGet, cacheStore } from '../util'
 
 export const cars = Vue.observable( {
+    cacheChecked: false,
+
     byId: {} as { [index: string]: string },
 
     carPacks: {} as { [index: string]: { [index: string]: { name: string, cars: string[] } } },
@@ -12,6 +14,18 @@ export const cars = Vue.observable( {
     fetching: {} as { [index: string]: boolean },
 
     async fetchCars( car_physics_id: string ) {
+        if ( !this.cacheChecked ) {
+            const cachedCars = cacheGet( 'cars' )
+            if ( cachedCars ) {
+                const { byId, carPacks, trackPhysics } = JSON.parse( cachedCars )
+                Vue.set( this, 'byId', byId )
+                Vue.set( this, 'carPacks', carPacks )
+                Vue.set( this, 'trackPhysics', trackPhysics )
+            }
+
+            this.cacheChecked = true
+        }
+
         if ( this.fetching[car_physics_id] || this.trackPhysics[car_physics_id] || this.carPacks[car_physics_id] ) {
             return
         }
@@ -64,6 +78,8 @@ export const cars = Vue.observable( {
         const physics_node = getElementByXpath( doc, '//*[@id="ModsSel"]' )
         const physics = extractSelectOptions( physics_node ).filter( mod => !this.byId[mod.id] )
         Vue.set( this.trackPhysics, car_physics_id, physics )
+
+        cacheStore( 'cars', JSON.stringify( { byId: this.byId, carPacks: this.carPacks, trackPhysics: this.trackPhysics } ), 60 * 60 * 24 )
 
         this.fetching[car_physics_id] = false
     }
