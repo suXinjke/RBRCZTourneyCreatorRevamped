@@ -395,6 +395,14 @@ export default Vue.extend( {
                             <div key={`notification${index}`}>{ notification }</div>
                         ) }
                         </div>
+                        <div style='margin-top: 8px'>
+                            <div>ver 1</div>
+                            <div>
+                                <a href='https://github.com/suXinjke/RBRCZTourneyCreatorRevamped'>GitHub </a> |
+                                <a href='https://twitter.com/suxinjke'> Twitter </a> |
+                                <a href='http://rbr.onlineracing.cz/index.php?act=ustats&u=66612'> RBR CZ</a>
+                            </div>
+                        </div>
                         </td>
                         <td style='vertical-align: top;'>
                         { this.current_request_operation ? <div>{ this.current_request_operation }</div> :
