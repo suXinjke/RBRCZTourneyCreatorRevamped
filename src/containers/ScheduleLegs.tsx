@@ -52,15 +52,19 @@ export default tsx.componentFactory.create( {
                 return
             }
 
-            const now = new Date()
-            const nextThreeHours = new Date( Number( now ) + 1000 * 60 * 60 * 3 )
-            const nextSixHours = new Date( Number( now ) + 1000 * 60 * 60 * 6 )
+            let date = this.store.tournament.from_date
+            const last_leg = this.legs[this.legs.length - 1]
+            if ( last_leg ) {
+                const last_leg_date = Number( new Date( last_leg.date ) )
+                const next_day = last_leg_date + 1000 * 60 * 60 * 24
+                date = formatDate( new Date( next_day ) )
+            }
 
             this.legs.push( {
                 after_stage_divider: this.legs.length === 0 ? 0 : this.maxStageDivider + 1,
 
-                date: formatDate( nextThreeHours ),
-                time: formatTime( nextThreeHours )
+                date,
+                time: '23:59'
             } )
         },
 
