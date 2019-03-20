@@ -26,19 +26,21 @@ export default tsx.componentFactory.create( {
 
     computed: {
         available_track_groups: function() {
-            const country_array = Object.keys( this.tracks_data ).reduce( ( countries, key ) => {
-                const { country } = this.tracks_data[key]
-                return countries.includes( country ) ? countries : countries.concat( country )
-            }, [] as string[] ).sort( ( a, b ) => a > b ? 1 : -1 )
-            const surface_array = [
-                'Gravel',
-                'Tarmac',
-                'Snow'
-            ]
+            const country_array: string[] = []
+            const surface_array: string[] = []
+            Object.values( this.tracks_data ).forEach( track_data => {
+                if ( !country_array.includes( track_data.country ) ) {
+                    country_array.push( track_data.country )
+                }
+
+                if ( !surface_array.includes( track_data.surface ) ) {
+                    surface_array.push( track_data.surface )
+                }
+            } )
 
             return [
-                ...surface_array,
-                ...country_array
+                ...( surface_array.sort() ),
+                ...( country_array.sort() )
             ]
         },
 
