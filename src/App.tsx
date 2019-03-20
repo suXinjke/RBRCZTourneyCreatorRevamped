@@ -355,10 +355,10 @@ export default Vue.extend( {
     render: function( h ) {
         return (
             <div id='tournament_revamped'>
-                <div>
+                {/* <div>
                     <input id='tournament_hidden_radio_on' type='radio' name='tournament_hidden_radio' value='on' v-model={ this.hidden }/> <label for='tournament_hidden_radio_on'>Original</label>
                     <input id='tournament_hidden_radio_off' type='radio' name='tournament_hidden_radio' value='' v-model={ this.hidden }/> <label for='tournament_hidden_radio_off'>Revamped</label>
-                </div>
+                </div> */}
                 <table style={ this.hidden ? 'display: none;' : ''}><tbody>
                     <tr>
                         <td class='nav-buttons' style='width: 25%;'>
