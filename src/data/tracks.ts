@@ -1,12 +1,24 @@
 import Vue from 'vue'
-import { getElementByXpath } from '../util'
+import { getElementByXpath, cacheGet, cacheStore } from '../util'
 
 export const tracks = Vue.observable( {
+    cacheChecked: false,
+
     byId: {} as { [index: string]: TrackData },
 
     fetching: false,
 
     async fetchTracks() {
+        if ( !this.cacheChecked ) {
+            const cachedTracks = cacheGet( 'tracks' )
+            if ( cachedTracks ) {
+                const { byId } = JSON.parse( cachedTracks )
+                Vue.set( this, 'byId', byId )
+            }
+
+            this.cacheChecked = true
+        }
+
         if ( this.fetching || Object.keys( this.byId ).length > 0 ) {
             return
         }
@@ -38,6 +50,8 @@ export const tracks = Vue.observable( {
 
             row = row.nextSibling
         }
+
+        cacheStore( 'tracks', JSON.stringify( { byId: this.byId } ), 60 * 60 * 24 )
 
         this.fetching = false
     }

@@ -1,7 +1,9 @@
 import Vue from 'vue'
-import { getElementByXpath, waitUntil } from '../util'
+import { getElementByXpath, waitUntil, cacheGet, cacheStore } from '../util'
 
 export const trackWeather = Vue.observable( {
+    cacheChecked: false,
+
     byId: {} as { [ index: string ]: TrackWeatherData[] },
 
     fetching: {} as { [ index: string ]: boolean },
@@ -11,6 +13,16 @@ export const trackWeather = Vue.observable( {
     },
 
     async fetchTrackWeather( track_id: string ) {
+        if ( !this.cacheChecked ) {
+            const cachedTrackWeather = cacheGet( 'track_weather' )
+            if ( cachedTrackWeather ) {
+                const { byId } = JSON.parse( cachedTrackWeather )
+                Vue.set( this, 'byId', byId )
+            }
+
+            this.cacheChecked = true
+        }
+
         if ( this.fetching[track_id] ) {
             await waitUntil( () => this.fetching[track_id] === false )
         }
@@ -68,6 +80,8 @@ export const trackWeather = Vue.observable( {
             }
 
         }
+
+        cacheStore( 'track_weather', JSON.stringify( { byId: this.byId } ), 60 * 60 * 24 )
 
         Vue.set( this.fetching, track_id, false )
     }

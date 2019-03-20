@@ -30,10 +30,6 @@ export default Vue.extend( {
             current_page: Page.Tournament,
             track_index: 0,
 
-            tracks_data: tracks.byId,
-            tracks_settings: trackSettings,
-            tracks_weather: trackWeather,
-
             store,
 
             hidden: '',
@@ -45,6 +41,18 @@ export default Vue.extend( {
     },
 
     computed: {
+        tracks_data: function() {
+            return tracks.byId
+        },
+
+        tracks_settings: function() {
+            return trackSettings
+        },
+
+        tracks_weather: function() {
+            return trackWeather
+        },
+
         from_date: function() {
             const { from_date, from_time } = this.store.tournament
             return (

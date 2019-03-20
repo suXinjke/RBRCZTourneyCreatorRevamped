@@ -1,9 +1,10 @@
 import Vue from 'vue'
 import { store } from '../store'
-import { constants } from '../data/constants'
-import { post, extractSelectOptions, getElementByXpath, waitUntil, formatDate, stringDateToCZDate } from '../util'
+import { post, extractSelectOptions, getElementByXpath, waitUntil, cacheGet, cacheStore } from '../util'
 
 export const trackSettings = Vue.observable( {
+    cacheChecked: false,
+
     byId: {} as { [index: string]: TrackSettings },
 
     fetching: {} as { [index: string]: boolean },
@@ -13,6 +14,16 @@ export const trackSettings = Vue.observable( {
     },
 
     async fetchTrackSettings( track_id: string ) {
+        if ( !this.cacheChecked ) {
+            const cachedTrackSettings = cacheGet( 'track_settings' )
+            if ( cachedTrackSettings ) {
+                const { byId } = JSON.parse( cachedTrackSettings )
+                Vue.set( this, 'byId', byId )
+            }
+
+            this.cacheChecked = true
+        }
+
         if ( this.fetching[track_id] ) {
             await waitUntil( () => this.fetching[track_id] === false )
         }
@@ -67,6 +78,8 @@ export const trackSettings = Vue.observable( {
         }
 
         Vue.set( this.byId, track_id, settings )
+
+        cacheStore( 'track_settings', JSON.stringify( { byId: this.byId } ), 60 * 60 * 24 )
 
         Vue.set( this.fetching, track_id, false )
     }
