@@ -32,10 +32,6 @@ export const cars = Vue.observable( {
         const html = await response.text()
         const doc = ( new DOMParser() ).parseFromString( html, 'text/html' )
 
-        const physics_node = getElementByXpath( doc, '//*[@id="ModsSel"]' )
-        const physics = extractSelectOptions( physics_node )
-        Vue.set( this.trackPhysics, car_physics_id, physics )
-
         const car_pack_node = getElementByXpath( doc, '//*[@id="ModsPacksSel"]' )
         const car_pack_options = extractSelectOptions( car_pack_node )
         car_pack_options.forEach( car_pack_option => {
@@ -64,6 +60,10 @@ export const cars = Vue.observable( {
 
             matches = car_regexp.exec( html )
         }
+
+        const physics_node = getElementByXpath( doc, '//*[@id="ModsSel"]' )
+        const physics = extractSelectOptions( physics_node ).filter( mod => !this.byId[mod.id] )
+        Vue.set( this.trackPhysics, car_physics_id, physics )
 
         this.fetching[car_physics_id] = false
     }
