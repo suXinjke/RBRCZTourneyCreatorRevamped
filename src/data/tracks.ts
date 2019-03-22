@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { getElementByXpath, cacheGet, cacheStore } from '../util'
+import { getElementByXpath, cacheGet, cacheStore, extractSelectOptions } from '../util'
 
 export const tracks = Vue.observable( {
     cacheChecked: false,
@@ -25,6 +25,9 @@ export const tracks = Vue.observable( {
 
         this.fetching = true
 
+        const stage_select_node = getElementByXpath( document, '//*[@id="StagesSel"]' )
+        const allowed_stage_ids = extractSelectOptions( stage_select_node ).map( option => option.id ).filter( id => id.length > 0 )
+
         const res = await fetch( '/index.php?act=rbrtracks' )
 
         const text = await res.text()
@@ -35,7 +38,7 @@ export const tracks = Vue.observable( {
         let row: Node | null = track_rows
         while ( row ) {
             const id = row.childNodes[0].textContent
-            if ( id ) {
+            if ( id && allowed_stage_ids.includes( id ) ) {
                 const track: TrackData = {
                     id,
                     name: row.childNodes[1].textContent || '',
