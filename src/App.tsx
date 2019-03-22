@@ -385,7 +385,7 @@ export default Vue.extend( {
                             ) ) }
 
                             <button onClick={ () => { this.current_page = Page.ScheduleLegs } } class={{ active: this.current_page === Page.ScheduleLegs, error: this.hasErrors( this.legs_errors ) }} style='margin-top: 8px'>Schedule and legs</button>
-                            <button onClick={ () => { this.current_page = Page.Presets } } class={{ active: this.current_page === Page.Presets }}>JSON info</button>
+                            <button onClick={ () => { this.current_page = Page.Presets } } class={{ active: this.current_page === Page.Presets }}>Presets / Misc.</button>
 
                         { this.hasErrors( { ...this.tournament_errors, ...this.cars_errors, ...this.tracks_errors, ...this.legs_errors } ) ?
                             <button disabled={ true } style='margin-top: 8px'>Can't send data due to errors</button>
