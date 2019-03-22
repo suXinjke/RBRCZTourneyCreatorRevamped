@@ -122,7 +122,7 @@ export default Vue.extend( {
                 registration_deadline: (
                     this.store.tournament.registration_deadline.trim().length === 0 ? '' :
                     isNaN( registration_deadline_in_hours ) ? 'Must be a number' :
-                    registration_deadline_in_hours <= 0 ? 'Must be positive' :
+                    registration_deadline_in_hours < 0 ? 'Cannot be negative' :
                     Number.isInteger( registration_deadline_in_hours ) === false ? 'Must be integer' :
                     ''
                 )
