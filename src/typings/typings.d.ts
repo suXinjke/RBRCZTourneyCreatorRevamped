@@ -132,4 +132,10 @@ declare global {
         SRallyPenaltySel: string,
         tourstages: string
     }
+
+    interface TrackProblems {
+        surface_type?: string[],
+        surface_age?: string[],
+        time_of_day?: string[]
+    }
 }

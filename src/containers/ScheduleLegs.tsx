@@ -136,8 +136,8 @@ export default tsx.componentFactory.create( {
                                 </div>
                                 <div>
                                     <TyreSelect track={ track }/>
-                                    <SurfaceTypeSelect track={ track }/>
-                                    <SurfaceAgeSelect track={ track }/>
+                                    <SurfaceTypeSelect track={ track } tinyProblemDisplay={ true }/>
+                                    <SurfaceAgeSelect track={ track } tinyProblemDisplay={ true }/>
                                     <ServiceSelect track={ track }/>
                                 </div>
                                 <div>
