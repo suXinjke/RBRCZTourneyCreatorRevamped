@@ -81,8 +81,18 @@ export default Vue.extend( {
         },
 
         tracks_errors: function() {
+            const shakedown_forbidden_tracks = this.store.tracks
+                .map( ( track, index ) => {
+                    const { name, shakedown_allowed } = this.tracks_data[track.id]
+                    return { track_name: name, shakedown_allowed, index }
+                } )
+                .filter( group => group.shakedown_allowed === false )
+                .map( group => `SS ${group.index + 1} - ${group.track_name}` )
+                .join( ', ' )
+
             return {
-                selected_tracks: this.store.tracks.length === 0 ? 'Must select atleast one track' : ''
+                selected_tracks: this.store.tracks.length === 0 ? 'Must select atleast one track' : '',
+                offline_tracks: this.store.tournament.offline && shakedown_forbidden_tracks.length > 0 ? `${shakedown_forbidden_tracks} cannot be used in an offline tournament` : ''
             }
         },
 

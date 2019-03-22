@@ -217,6 +217,8 @@ export const store = {
             PhysicsModId: constants.carPhysics[0].id,
 
             has_legs: null,
+            online: 'on',
+            offlinet: null,
 
             ...additionalParams
         } )

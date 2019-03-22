@@ -20,7 +20,8 @@ export default tsx.componentFactory.create( {
 
     props: {
         errors: Object as () => {
-            selected_tracks: string
+            selected_tracks: string,
+            offline_tracks: string
         }
     },
 
@@ -158,6 +159,7 @@ export default tsx.componentFactory.create( {
                     ) }
                     </select>
                     <div>Total distance: { this.total_distance } km</div>
+                    <div class='error'>{ this.errors.offline_tracks }</div>
                 </td>
             </tr></tbody></table>
         )
