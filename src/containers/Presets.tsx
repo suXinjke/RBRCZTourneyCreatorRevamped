@@ -74,6 +74,21 @@ export default tsx.componentFactory.create( {
                     <button onClick={ () => this.load( index ) } disabled={ Boolean( saveName ) === false }>{ index + 1 } { saveName ? `- ${saveName}` : '' }</button>
                 ) ) }
                 </div>
+                <div style='margin: 16px 0;'>
+                    <button onClick={ () => {
+                        if ( confirm( 'Are you sure you want to clear local storage?' ) ) {
+                            window.localStorage.clear()
+                            window.location.reload()
+                        }
+                    } }>
+                        Clear local storage
+                    </button><br/>
+                    The track and car info are cached in browser's local storage.<br/>
+                    This cache expires within a day, but can be invalidated by pressing <strong>Clear local storage</strong> button.<br/>
+                    Clearing storage should be done if CZ car/track list has changed,<br/>
+                    but you don't see the changes while using this userscript.<br/>
+                    <strong>This will refresh current page, which may result in loss of data.</strong>
+                </div>
                 <table>
                     <thead>
                         <tr>
