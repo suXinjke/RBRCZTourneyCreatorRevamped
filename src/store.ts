@@ -10,6 +10,9 @@ const storeDatePack = datePacks()
 const defaultTournament: Tournament = {
     name: '',
     description: '',
+
+    license_id: '0',
+
     online: true,
     offline: false,
 
@@ -140,6 +143,10 @@ export const store = {
             const tournament: Tournament = {
                 name: ( form_data.get( 'tour_name' ) as string ) || this.tournament.name,
                 description: ( form_data.get( 'tour_descr' ) as string ) || this.tournament.description,
+
+                // NOTE: this must be got from car selection page
+                license_id: '0',
+
                 online: ( form_data.get( 'online' ) as string ) !== null,
                 offline: ( form_data.get( 'offlinet' ) as string ) !== null,
 
@@ -224,7 +231,7 @@ export const store = {
         } )
     },
 
-    carsPhysicsFromHTML( html: string ) {
+    carsPhysicsLicensesFromHTML( html: string ) {
         const doc = ( new DOMParser() ).parseFromString( html, 'text/html' )
         const tournament_form = doc.getElementById( 'tournament' ) as HTMLFormElement | null
         if ( tournament_form ) {
@@ -240,12 +247,18 @@ export const store = {
                     this.cars_physics.track_physics_id = mod_id
                 }
             }
+
+            const licenses = form_data.getAll( 'LicSel[]' )
+            for ( const license_id of licenses ) {
+                this.tournament.license_id = license_id.toString()
+                break
+            }
         }
     },
 
     carsPhysicsPostOutput() {
         return objectWithoutNulls( {
-            LicSel: [ '0' ], // TODO: License selection
+            LicSel: [ this.tournament.license_id ],
             ModsSel: [ this.cars_physics.track_physics_id, ...this.cars_physics.selected_car_ids ]
         } )
     },

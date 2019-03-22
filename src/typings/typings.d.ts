@@ -79,6 +79,9 @@ declare global {
     interface Tournament {
         name: string,
         description: string,
+
+        license_id: string,
+
         online: boolean,
         offline: boolean,
 

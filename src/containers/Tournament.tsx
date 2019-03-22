@@ -1,6 +1,7 @@
 import * as tsx from 'vue-tsx-support'
 import { store } from '../store'
 import { constants } from '../data/constants'
+import { licenses } from '../data/licenses'
 
 export default tsx.componentFactory.create( {
     name: 'Tournament',
@@ -12,6 +13,10 @@ export default tsx.componentFactory.create( {
 
         tournament: function() {
             return store.tournament
+        },
+
+        licenses: function() {
+            return licenses.options
         }
     },
 
@@ -38,6 +43,17 @@ export default tsx.componentFactory.create( {
                 <tr>
                     <td><label for='tournament.description'>Tournament description</label></td>
                     <td><textarea id='tournament.description' v-model={ this.tournament.description } style='background-color: #050505;'/></td>
+                </tr>
+
+                <tr>
+                    <td><label for='tournament.license_id'> License</label></td>
+                    <td>
+                        <select v-model={ this.tournament.license_id }>
+                        { this.licenses.map( option =>
+                            <option key={ `license${option.id}` } value={ option.id }>{ option.label }</option>
+                        ) }
+                        </select>
+                    </td>
                 </tr>
 
                 <tr>

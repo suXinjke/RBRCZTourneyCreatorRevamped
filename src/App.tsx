@@ -11,6 +11,7 @@ import { constants } from './data/constants'
 import { trackSettings } from './data/track-settings'
 import { trackWeather } from './data/track-weather'
 import { cars } from './data/cars'
+import { licenses } from './data/licenses'
 import { post, urlEncode, getElementByXpath, waitUntil, objectWithoutNulls } from './util'
 import './app.scss'
 
@@ -308,6 +309,9 @@ export default Vue.extend( {
         this.current_request_operation = 'Fetching track information'
         await tracks.fetchTracks()
 
+        this.current_request_operation = 'Fetching licenses'
+        await licenses.fetchLicenses( constants.carPhysics[0].id )
+
         const url_search_params = new URLSearchParams( window.location.search )
         const tournament_id = url_search_params.get( 'torid' )
 
@@ -336,7 +340,7 @@ export default Vue.extend( {
                 } )
                 this.current_request_operation = `Fetching tournament's Cars / Physics`
                 res = await post( tournament_data, { page_selector: '1' } )
-                this.store.carsPhysicsFromHTML( await res.text() )
+                this.store.carsPhysicsLicensesFromHTML( await res.text() )
 
                 for ( let i = 0 ; i < track_ids.length ; i++ ) {
                     const track_id = track_ids[i]
