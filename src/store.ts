@@ -71,7 +71,7 @@ export const store = {
             const settings = trackSettings.byId[track_id]
             const weatherSettings = trackWeather.byId[track_id]
 
-            store.tracks.push( {
+            this.tracks.push( {
                 id: track_id,
                 name: '',
                 surface_type: previousTrack && settings.surface_type.find( surface => surface.id === previousTrack.surface_type ) ?
@@ -113,13 +113,13 @@ export const store = {
     },
 
     trackRemove( track_index: number ) {
-        store.tracks.splice( track_index, 1 )
-        store.trackFixIncorrectService()
+        this.tracks.splice( track_index, 1 )
+        this.trackFixIncorrectService()
     },
 
     trackMove( track_index: number, offset: number ) {
         const moved_successfully = arrayMoveElement( this.tracks, track_index, offset )
-        store.trackFixIncorrectService()
+        this.trackFixIncorrectService()
         return moved_successfully
     },
 
