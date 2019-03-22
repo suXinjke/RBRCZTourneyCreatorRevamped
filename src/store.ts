@@ -58,7 +58,6 @@ export const store = {
     },
 
     async trackAdd( track_ids: string[] ) {
-        const previousTrack = this.tracks[this.tracks.length - 1]
 
         for ( const track_id of track_ids ) {
             const track = tracks_data.byId[track_id] as TrackData
@@ -68,6 +67,7 @@ export const store = {
 
             await this.trackFetchInfo( track_id )
 
+            const previousTrack = this.tracks[this.tracks.length - 1]
             const settings = trackSettings.byId[track_id]
             const weatherSettings = trackWeather.byId[track_id]
 
@@ -90,9 +90,9 @@ export const store = {
                 clouds: weatherSettings[0].clouds.id,
 
                 service_time_mins: 0,
-                setup_change_allowed: false,
+                setup_change_allowed: previousTrack ? previousTrack.setup_change_allowed : true,
                 tyre_replacement_allowed: false,
-                tyre_change_allowed: previousTrack ? false : true,
+                tyre_change_allowed: previousTrack ? previousTrack.tyre_change_allowed : true,
                 tyres: settings.tyres_recommended,
 
                 damage_change_allowed: previousTrack ? previousTrack.damage_change_allowed : false,
