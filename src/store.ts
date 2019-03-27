@@ -1,7 +1,7 @@
 import { tracks as tracks_data } from './data/tracks'
 import { trackSettings } from './data/track-settings'
 import { trackWeather } from './data/track-weather'
-import { formatDate, formatTime, datePacks, arrayMoveElement, objectWithoutNulls, stringDateToCZDate, getElementByXpath, czDateToStringDate } from './util'
+import { formatDate, formatTime, datePacks, arrayMoveElement, objectWithoutNulls, stringDateToCZDate, getElementByXpath, czDateToStringDate, arrayShuffle } from './util'
 import { constants } from './data/constants'
 import { cars } from './data/cars'
 
@@ -129,6 +129,10 @@ export const store = {
 
     trackMoveDown( track_index: number ) {
         return this.trackMove( track_index, +1 )
+    },
+
+    tracksShuffle() {
+        this.tracks = arrayShuffle( this.tracks )
     },
 
     tournamentFromHTML( html: string ): { track_ids: string[], cars_physics: string, has_legs: boolean } {

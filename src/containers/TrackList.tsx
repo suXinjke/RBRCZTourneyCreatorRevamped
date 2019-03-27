@@ -13,7 +13,6 @@ export default tsx.componentFactory.create( {
 
             tracks_selected_indexes: [] as number[],
 
-            tracks: store.tracks,
             tracks_data: tracks.byId
         }
     },
@@ -26,6 +25,10 @@ export default tsx.componentFactory.create( {
     },
 
     computed: {
+        tracks: function() {
+            return store.tracks
+        },
+
         available_track_groups: function() {
             const country_array: string[] = []
             const surface_array: string[] = []
@@ -108,6 +111,10 @@ export default tsx.componentFactory.create( {
         removeAll: function() {
             this.tracks.splice( 0 )
         },
+
+        shuffle: function() {
+            store.tracksShuffle()
+        }
     },
 
     render: function( h ) {
@@ -143,6 +150,7 @@ export default tsx.componentFactory.create( {
 
                     <button onClick={ this.addSelected } style='text-align: left;'>Add selected ></button>
                     <button onClick={ this.addRandom } style='text-align: left;'>Add random ></button>
+                    <button onClick={ this.shuffle } style='text-align: center;'>^ Shuffle v</button>
                     <button onClick={ this.removeSelected } style='text-align: right;'>&lt; Remove selected</button>
                     <button onClick={ this.removeAll } style='text-align: right;'>&lt;&lt; Remove all</button>
 
