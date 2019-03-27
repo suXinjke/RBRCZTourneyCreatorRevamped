@@ -12,7 +12,7 @@ import { trackSettings } from './data/track-settings'
 import { trackWeather } from './data/track-weather'
 import { cars } from './data/cars'
 import { licenses } from './data/licenses'
-import { post, urlEncode, getElementByXpath, waitUntil, objectWithoutNulls } from './util'
+import { post, urlEncode, getElementByXpath, waitUntil, objectWithoutNulls, cacheGet, cacheStore } from './util'
 import './app.scss'
 
 enum Page {
@@ -304,6 +304,13 @@ export default Vue.extend( {
     },
 
     mounted: async function() {
+        const userscript_version = 2
+        const cached_userscript_version = Number( cacheGet( 'userscript_version' ) ) || 0
+        if ( cached_userscript_version < userscript_version ) {
+            localStorage.clear()
+            cacheStore( 'userscript_version', userscript_version.toString(), 604800 )
+        }
+
         constants.fetchTournamentConstants()
 
         this.current_request_operation = 'Fetching track information'
