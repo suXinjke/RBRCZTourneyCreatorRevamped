@@ -14,6 +14,8 @@ import TrackWeatherSelect from '../components/TrackWeatherSelect'
 import { tracks } from '../data/tracks'
 import { trackSettings } from '../data/track-settings'
 import { cars } from '../data/cars'
+import { arrayRandom } from '../util'
+import { trackWeather } from '../data/track-weather'
 
 export default tsx.componentFactory.create( {
     name: 'Track',
@@ -21,16 +23,15 @@ export default tsx.componentFactory.create( {
         track: Object as () => SelectedTrack,
         index: Number
     },
-    data: function() {
-        return {
-            tracks_data: tracks.byId,
-            tracks_settings: trackSettings.byId[this.track.id],
-            selected_car_ids: store.cars_physics.selected_car_ids
-        }
-    },
     computed: {
         track_data: function() {
-            return this.tracks_data[this.track.id] as TrackData
+            return tracks.byId[this.track.id]
+        },
+        tracks_settings: function() {
+            return trackSettings.byId[this.track.id]
+        },
+        tracks_weather: function() {
+            return trackWeather.byId[this.track.id]
         },
         car_id_options: function() {
             return store.cars_physics.selected_car_ids.map( car_id => ( {
@@ -42,6 +43,35 @@ export default tsx.componentFactory.create( {
             return this.index === store.tracks.length - 1
         }
     },
+    methods: {
+        randomSurface() {
+            const { surface_type, surface_age } = this.tracks_settings
+
+            this.track.surface_type = arrayRandom( surface_type ).id
+            this.track.surface_age = arrayRandom( surface_age ).id
+        },
+        randomWeather() {
+            const { weather2, clouds, time_of_day } = arrayRandom( this.tracks_weather )
+            this.track.weather2 = weather2.id
+            this.track.clouds = clouds.id
+            this.track.time_of_day = time_of_day.id
+
+            this.track.weather = arrayRandom( this.tracks_settings.weather ).id
+        },
+        randomService() {
+            if ( this.is_last_track ) {
+                return
+            }
+
+            this.track.service_time_mins = arrayRandom( [ 0, 5, 10, 15, 20, 30, 60, 90 ] )
+            this.track.tyre_replacement_allowed = arrayRandom( [ true, false ] )
+        },
+        randomAll() {
+            this.randomSurface()
+            this.randomWeather()
+            this.randomService()
+        },
+    },
     watch: {
         'track.service_time_mins': function( val ) {
             if ( val <= 0 ) {
@@ -52,7 +82,14 @@ export default tsx.componentFactory.create( {
 
     render: function( h ) {
         return (
-            <table><tbody>
+            <table>
+            <thead>
+                <tr>
+                    <td style='width: 200px;'></td>
+                    <td></td>
+                </tr>
+            </thead>
+            <tbody>
                 <tr>
                     <td>Original track name</td>
                     <td>{ this.track_data.name }</td>
@@ -185,7 +222,20 @@ export default tsx.componentFactory.create( {
                     <td><label for='track.retry_allowed'>Allow to retry this stage</label></td>
                     <td><input type='checkbox' id='track.retry_allowed' v-model={ this.track.retry_allowed } /></td>
                 </tr>
-            </tbody></table>
+
+                <tr>
+                    <td><label>Randomization</label></td>
+                    <td>
+                        <button onClick={ this.randomSurface }>Surface</button>
+                        <button onClick={ this.randomWeather }>Weather</button>
+                    { !this.is_last_track &&
+                        <button onClick={ this.randomService }>Service</button>
+                    }
+                        <button onClick={ this.randomAll }>All</button>
+                    </td>
+                </tr>
+            </tbody>
+            </table>
         )
     }
 } )

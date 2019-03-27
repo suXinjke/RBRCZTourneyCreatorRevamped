@@ -8,6 +8,10 @@ export default tsx.componentFactory.create( {
         track: Object as () => SelectedTrack,
     },
     computed: {
+        value: function() {
+            const { time_of_day, weather2, clouds } = this.track
+            return `${time_of_day},${weather2},${clouds}`
+        },
         options: function() {
             return trackWeather.byId[this.track.id]
         },
@@ -23,7 +27,7 @@ export default tsx.componentFactory.create( {
 
         return (
             <div>
-                <select onChange={ ( e ) => {
+                <select value={ this.value } onChange={ ( e ) => {
                     if ( e.target ) {
                         const [ time_of_day_id, weather2_id, clouds_id ] = ( e.target as HTMLSelectElement ).value.split( ',' )
                         this.track.time_of_day = time_of_day_id
