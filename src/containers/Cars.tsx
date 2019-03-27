@@ -2,6 +2,7 @@ import * as tsx from 'vue-tsx-support'
 import { store } from '../store'
 import { constants } from '../data/constants'
 import { cars } from '../data/cars'
+import { arrayRandom } from '../util'
 
 export default tsx.componentFactory.create( {
     name: 'Cars',
@@ -79,6 +80,11 @@ export default tsx.componentFactory.create( {
 
         addAll: function() {
             this.addToSelected( this.available_cars.map( car => car.id ) )
+        },
+
+        addRandom: function() {
+            const random_car_id = [ arrayRandom( this.available_cars ).id ]
+            this.addToSelected( random_car_id )
         },
 
         removeSelected: function() {
@@ -166,6 +172,7 @@ export default tsx.componentFactory.create( {
 
                 <td class='select-buttons'>
                     <button onClick={ this.addSelected } style='text-align: left;'>Add selected ></button>
+                    <button onClick={ this.addRandom } style='text-align: left;'>Add random ></button>
                     <button onClick={ this.addAll } style='text-align: left;'>Add all >></button>
                     <button onClick={ this.removeSelected } style='text-align: right;'>&lt; Remove selected</button>
                     <button onClick={ this.removeAll } style='text-align: right;'>&lt;&lt; Remove all</button>

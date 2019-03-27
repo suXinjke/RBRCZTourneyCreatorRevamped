@@ -63,6 +63,10 @@ export function arrayShuffle( array: any[] ) {
     return array
 }
 
+export function arrayRandom<T>( array: T[] ): T {
+    const randomIndex = Math.floor( Math.random() * Math.floor( array.length ) )
+    return array[randomIndex]
+}
 
 export function objectWithoutNulls<T = any>( obj: T ): Partial<T> {
     return Object.keys( obj ).reduce( ( prev, id ) => ( ( obj as any )[id] === null ? prev : {
