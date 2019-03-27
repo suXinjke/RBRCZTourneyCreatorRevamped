@@ -58,7 +58,7 @@ export default tsx.componentFactory.create( {
 
             const carPack = cars.carPacks[this.cars_physics.car_physics_id][this.car_pack]
 
-            return this.carIdsForSelect( carPack.cars )
+            return this.carIdsForSelect( carPack.cars ).filter( option => !this.selected_cars.find( selected_car => selected_car.id === option.id ) )
         },
         selected_cars: function() {
             return this.carIdsForSelect( this.cars_physics.selected_car_ids )
