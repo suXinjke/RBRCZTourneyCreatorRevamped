@@ -9,5 +9,13 @@ module.exports = {
             'Access-Control-Allow-Origin': 'http://rbr.onlineracing.cz'
         }
 
+    },
+
+    chainWebpack: config => {
+        config.optimization.delete('splitChunks')
+    },
+
+    css: {
+        extract: false
     }
 }
