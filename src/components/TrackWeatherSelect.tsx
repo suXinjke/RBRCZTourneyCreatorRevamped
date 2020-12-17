@@ -35,11 +35,18 @@ export default tsx.componentFactory.create( {
                         this.track.clouds = clouds_id
                     }
                 } }>
-                { this.options.map( option =>
-                    <option key={ `t${option.time_of_day.id}w${option.weather2.id}c${option.clouds.id}` } value={ `${option.time_of_day.id},${option.weather2.id},${option.clouds.id}` }>
-                        { option.time_of_day.label }; { option.weather2.label }; { option.clouds.label } { option.remark ? `(${option.remark})` : '' }
-                    </option>
-                ) }
+                { this.options.map( option => {
+                    const value = `${option.time_of_day.id},${option.weather2.id},${option.clouds.id}`
+                    return (
+                        <option
+                            key={ `t${option.time_of_day.id}w${option.weather2.id}c${option.clouds.id}` }
+                            value={ value }
+                            selected={ this.value === value }
+                        >
+                            { option.time_of_day.label }; { option.weather2.label }; { option.clouds.label } { option.remark ? `(${option.remark})` : '' }
+                        </option>
+                    )
+                } ) }
                 </select>
                 <div class='error'>{ this.hasProblem ? `It's known that this time of day may crash the game unless the track is patched.` : '' }</div>
             </div>

@@ -417,7 +417,7 @@ export default Vue.extend( {
                         ) }
                         </div>
                         <div style='margin-top: 8px'>
-                            <div>ver 2</div>
+                            <div>ver 2a</div>
                             <div>
                                 <a href='https://github.com/suXinjke/RBRCZTourneyCreatorRevamped'>GitHub </a> |
                                 <a href='https://twitter.com/suxinjke'> Twitter </a> |
