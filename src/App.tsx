@@ -187,6 +187,7 @@ export default Vue.extend( {
 
             const generalErrorXPath = '/html/body/table/tbody/tr/td/table[3]/tbody/tr[1]/td[2]/span'
             const trackErrorXPath = '/html/body/table/tbody/tr/td/table[3]/tbody/tr[1]/td[2]/center/span'
+            const tournamentErrorXPath = '/html/body/table/tbody/tr/td/table[3]/tbody/tr[1]/td[2]/center[1]/span/center'
 
             let res: Response
 
@@ -194,49 +195,59 @@ export default Vue.extend( {
                 const tournament_data = this.store.tournamentPostOutput()
                 this.current_request_operation = `Sending tournament info`
                 res = await post( tournament_data, { flow: '0' } )
-                this.checkAndAppendServerErrors( { page: 'Tournament', errorsXPath: generalErrorXPath, res } )
+                this.checkAndAppendServerErrors( { page: 'Tournament', errorsXPath: generalErrorXPath, html: await res.text() } )
 
                 const cars_physics_data = this.store.carsPhysicsPostOutput()
                 this.current_request_operation = `Sending Cars / Physics info`
                 res = await post( cars_physics_data, { flow: '1' } )
-                this.checkAndAppendServerErrors( { page: 'Cars / Physics', errorsXPath: generalErrorXPath, res } )
+                this.checkAndAppendServerErrors( { page: 'Cars / Physics', errorsXPath: generalErrorXPath, html: await res.text() } )
 
                 for ( let i = 0 ; i < this.store.tracks.length ; i++ ) {
                     const track_data = this.store.trackPostOutput( i )
 
                     this.current_request_operation = `Sending SS ${i + 1 } info`
                     res = await post( track_data, { flow: '2', curstagepos: i.toString() } )
-                    this.checkAndAppendServerErrors( { page: `SS ${i + 1}`, errorsXPath: trackErrorXPath, res } )
+                    this.checkAndAppendServerErrors( { page: `SS ${i + 1}`, errorsXPath: trackErrorXPath, html: await res.text() } )
                 }
 
                 const leg_data = this.store.legsPostOutput()
                 if ( has_legs ) {
                     this.current_request_operation = `Sending legs info`
                     res = await post( leg_data, { flow: '3', page_selector: ( 2 + this.store.tracks.length ).toString() } )
-                    this.checkAndAppendServerErrors( { page: 'Legs', errorsXPath: generalErrorXPath, res } )
+                    this.checkAndAppendServerErrors( { page: 'Legs', errorsXPath: generalErrorXPath, html: await res.text() } )
                 }
 
-                if ( this.serverErrors.length === 0 ) {
-                    this.current_request_operation = `Submitting tournament`
+                if ( this.serverErrors.length > 0 ) {
+                    return
+                }
 
-                    // NOTE: apparently if you have legs - you should submit the tournament from the leg page
-                    // Otherwise the main tournament settings page may redirect you to leg page instead of submitting
-                    res = await post( has_legs ? leg_data : tournament_data, {
-                        flow: has_legs ? '3' : '0',
-                        save_tournament: true,
-                        save_from_leg_page: has_legs
-                    } )
-                    const html = await res.text()
-                    const doc = ( new DOMParser() ).parseFromString( html, 'text/html' )
+                this.current_request_operation = `Submitting tournament`
 
-                    const edit_tournament_node = getElementByXpath( doc, '/html/body/table/tbody/tr/td/table[3]/tbody/tr[1]/td[2]/center[3]/a' )
-                    if ( edit_tournament_node ) {
-                        const href = edit_tournament_node.getAttribute( 'href' ) || ''
-                        const tournament_id_match = href.match( /torid=([^&]+)/ )
-                        if ( tournament_id_match ) {
-                            const tournament_id = tournament_id_match[1]
-                            window.location.replace( `index.php?act=tourmntsview&torid=${tournament_id}` )
-                        }
+                // NOTE: apparently if you have legs - you should submit the tournament from the leg page
+                // Otherwise the main tournament settings page may redirect you to leg page instead of submitting
+                res = await post( has_legs ? leg_data : tournament_data, {
+                    flow: has_legs ? '3' : '0',
+                    save_tournament: true,
+                    save_from_leg_page: has_legs
+                } )
+
+                const html = await res.text()
+
+                this.checkAndAppendServerErrors( { page: 'Tournament', errorsXPath: tournamentErrorXPath, html } )
+                if ( this.serverErrors.length > 0 ) {
+                    this.current_request_operation = ''
+                    return
+                }
+
+                const doc = ( new DOMParser() ).parseFromString( html, 'text/html' )
+
+                const edit_tournament_node = getElementByXpath( doc, '/html/body/table/tbody/tr/td/table[3]/tbody/tr[1]/td[2]/center[3]/a' )
+                if ( edit_tournament_node ) {
+                    const href = edit_tournament_node.getAttribute( 'href' ) || ''
+                    const tournament_id_match = href.match( /torid=([^&]+)/ )
+                    if ( tournament_id_match ) {
+                        const tournament_id = tournament_id_match[1]
+                        window.location.replace( `index.php?act=tourmntsview&torid=${tournament_id}` )
                     }
                 }
             } catch ( err ) {
@@ -245,9 +256,9 @@ export default Vue.extend( {
             }
         },
 
-        checkAndAppendServerErrors: async function( params: { res: Response, errorsXPath: string, page: string } ) {
-            const { res, errorsXPath, page } = params
-            const doc = ( new DOMParser() ).parseFromString( await res.text(), 'text/html' )
+        checkAndAppendServerErrors: async function( params: { html: string, errorsXPath: string, page: string } ) {
+            const { html, errorsXPath, page } = params
+            const doc = ( new DOMParser() ).parseFromString( html, 'text/html' )
 
             const errors = getElementByXpath( doc, errorsXPath )
             if ( errors ) {
@@ -417,7 +428,7 @@ export default Vue.extend( {
                         ) }
                         </div>
                         <div style='margin-top: 8px'>
-                            <div>ver 2a</div>
+                            <div>ver 2b</div>
                             <div>
                                 <a href='https://github.com/suXinjke/RBRCZTourneyCreatorRevamped'>GitHub </a> |
                                 <a href='https://twitter.com/suxinjke'> Twitter </a> |
